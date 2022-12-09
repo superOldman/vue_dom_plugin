@@ -54,8 +54,9 @@
             </g>
           </svg></div>
         <div style="float:right;padding:0 10px;width:1px;color:#99A9BF">|</div>
-        <div id="sa_sdk_heatmap_toolbar_share" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="打开分享"><svg style="position:absolute;top:11px; left: 5px;" width="14px"
-            height="15px" viewBox="0 0 14 15" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <div id="sa_sdk_heatmap_toolbar_share" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="打开分享" @click="lookView">
+          <svg style="position:absolute;top:11px; left: 5px;" width="14px" height="15px" viewBox="0 0 14 15" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink">
             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
               <g transform="translate(-42.000000, -62.000000)">
                 <g transform="translate(39.000000, 60.000000)">
@@ -66,10 +67,12 @@
                 </g>
               </g>
             </g>
-          </svg></div>
+          </svg>
+        </div>
         <div style="float:right;padding:0 10px;width:1px;color:#99A9BF">|</div>
-        <div id="sa_sdk_heatmap_toolbar_filter" style="float:right;position:relative;cursor:pointer;width:30px;height:100%;" title="筛选"><svg style="position: absolute; top: 11px; left: 5px;"
-            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="17px" height="15px" viewBox="0 0 17 15" version="1.1">
+        <div id="sa_sdk_heatmap_toolbar_filter" style="float:right;position:relative;cursor:pointer;width:30px;height:100%;" title="筛选">
+          <svg style="position: absolute; top: 11px; left: 5px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="17px" height="15px" viewBox="0 0 17 15"
+            version="1.1">
             <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
               <g id="操作栏" transform="translate(-1068.000000, -341.000000)" fill="#99A9BF" fill-rule="nonzero">
                 <g id="screen" transform="translate(1068.000000, 341.000000)">
@@ -78,14 +81,38 @@
                 </g>
               </g>
             </g>
-          </svg></div>
+          </svg>
+        </div>
       </div>
+
+      <div v-show="showQR" style="z-index:999999;width:260px;height:260px;position:fixed;right:2px;top:55px;background:#FFF;box-shadow:0 2px 9px 3px rgba(168,173,178,.39);border-radius:3px;">
+        <div style="height:44px;line-height:44px;border-bottom:1px solid #E9F0F7;text-align:center;color:#475669;font-size:14px;position:relative;">分享链接
+          <span style="position:absolute;top:4px;color:#99A9BF;cursor:pointer;right:4px"><svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink">
+              <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                <g>
+                  <g transform="translate(-1.000000, -1.000000)">
+                    <polygon fill="#99A9BF" transform="translate(11.106602, 11.106602) rotate(-45.000000) translate(-11.106602, -11.106602) "
+                      points="12.3566017 12.3566017 12.3566017 18.6066017 9.85660172 18.6066017 9.85660172 12.3566017 3.60660172 12.3566017 3.60660172 9.85660172 9.85660172 9.85660172 9.85660172 3.60660172 12.3566017 3.60660172 12.3566017 9.85660172 18.6066017 9.85660172 18.6066017 12.3566017">
+                    </polygon>
+                    <rect x="1" y="1" width="20" height="20"></rect>
+                  </g>
+                </g>
+              </g>
+            </svg></span>
+        </div>
+        <div class="the-qr" style="width:128px;height:128px;margin-left:66px;margin-top:16px"></div>
+        <div style="margin:20px">
+          <input style="font-size:14px;outline:none;color:#475669;width:92%;border:1px solid #D3DCE6;border-radius:3px;height:32px;line-height:32px;padding:0 10px;" type="text" value="">
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script>
-// import { Button } from 'element-ui';
+import QRCode from './QRcode'
 export default {
   name: 'test',
   components: {
@@ -96,13 +123,28 @@ export default {
   },
   data() {
     return {
-
+      showQR: false
     }
   },
-  methods: {
-
+  mounted() {
+    this.$nextTick(() => {
+      const qrCodeEle = document.querySelector('.the-qr')
+      new QRCode(qrCodeEle, {
+        text: window.location.href,
+        width: 128,
+        height: 128,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.L
+      });
+    })
   },
-};
+  methods: {
+    lookView() {
+      this.showQR = !this.showQR
+    }
+  },
+}
 </script>
 
 <style scoped lang="scss">

@@ -8,7 +8,7 @@ yarn
 yarn serve
 
 
-
+触发某些条件时加载js 可以获得该插件
 ```
   var g = document.createElement('script');
   g.async = 'async';
