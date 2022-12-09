@@ -11,6 +11,17 @@ function resolve(dir) {
 module.exports = {
     mode: 'development',
     devtool: 'source-map',
+    devServer: {
+        static: {
+            directory: path.resolve(__dirname, './dist'),
+        },
+        hot: false,
+        port: '7777',
+        allowedHosts: 'all',
+        devMiddleware: {
+            stats: 'minimal',
+        },
+    },
     // watch: process.env.env_config == "dev",
     entry: {
         core: './src/index.js',
