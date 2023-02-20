@@ -15,7 +15,7 @@ module.exports = {
         static: {
             directory: path.resolve(__dirname, './dist'),
         },
-        hot: false,
+        hot: true,
         port: '7777',
         allowedHosts: 'all',
         devMiddleware: {
