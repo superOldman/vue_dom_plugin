@@ -2,7 +2,7 @@ const heatmap = {
   jsonp_timer: null,
   getServerData: {
     ajax: function (obj) {
-      var _this = this;
+      let _this = this;
       _.ajax({
         url: obj.url.ajax,
         type: 'POST',
@@ -25,7 +25,7 @@ const heatmap = {
       });
     },
     start: function (config) {
-      var method = window.localStorage.getItem('sensors_heatmap_method');
+      let method = window.localStorage.getItem('sensors_heatmap_method');
       if (method && method === 'jsonp') {
         this.jsonp(config);
       } else {
@@ -33,13 +33,13 @@ const heatmap = {
       }
     },
     jsonp: function (obj) {
-      var success = function (data) {
+      let success = function (data) {
         obj.success(data);
         window.localStorage.setItem('sensors_heatmap_method', 'jsonp');
       },
         error = _.isFunction(obj.error) ? obj.error : function () { },
         timeout = obj.timeout || 8000;
-      var me = this;
+      let me = this;
       if (this.jsonp_timer !== null) {
         clearTimeout(this.jsonp_timer);
       }
@@ -103,22 +103,22 @@ const heatmap = {
     }
   },
   getScrollHeight: function () {
-    var a = parseInt(document.body.scrollHeight, 10);
+    let a = parseInt(document.body.scrollHeight, 10);
     return isNaN(a) ? 0 : a;
   },
   getBrowserWidth: function () {
-    var a = window.innerWidth || document.body.clientWidth;
+    let a = window.innerWidth || document.body.clientWidth;
     return isNaN(a) ? 0 : parseInt(a, 10);
   },
   getBrowserHeight: function () {
-    var a = window.innerHeight || document.body.clientHeight;
+    let a = window.innerHeight || document.body.clientHeight;
     return isNaN(a) ? 0 : parseInt(a, 10);
   },
   sendIframeData: function () {
-    var me = this;
+    let me = this;
     _.bindReady(function () {
       if (window && window.parent && window.parent.window && window !== window.parent.window) {
-        var iframe_height = me.getScrollHeight();
+        let iframe_height = me.getScrollHeight();
         window.parent.window.postMessage({
           method: 'setHeight',
           params: {
@@ -140,7 +140,7 @@ const heatmap = {
     });
   },
   prepare: function (data, type, url, fn) {
-    var me = this;
+    let me = this;
     if (!document.querySelectorAll) {
       alert('请更新到最新版浏览器,建议用chrome或者firefox');
       return false;
@@ -152,7 +152,7 @@ const heatmap = {
       });
     }
 
-    var web_url = sd.para.web_url || null;
+    let web_url = sd.para.web_url || null;
     if (!web_url && _.sessionStorage.isSupport() && sessionStorage.getItem && sessionStorage.getItem('sensors_heatmap_url')) {
       web_url = sessionStorage.getItem('sensors_heatmap_url') || null;
     }

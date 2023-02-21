@@ -1,11 +1,13 @@
 import Vue from 'vue'
-import { Button, Select, Popover } from 'element-ui';
+import { Button, Select,Option, Popover } from 'element-ui';
 // import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import testDom from './toolDom/testDom.vue'
 // Vue.use(ElementUI)
 Vue.use(Button)
 Vue.use(Popover)
+Vue.use(Select)
+Vue.use(Option)
 
 import heatmap from './toolDom/heatmap'
 

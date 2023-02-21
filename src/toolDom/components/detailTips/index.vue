@@ -1,22 +1,19 @@
 <template>
   <div>
     <!-- :after-leave="afterLeave" -->
-    <!-- <div slot="reference">hover 激活</div> -->12313{{reference.show}}
-
-    <el-popover v-if="reference.show" placement="top-start" title="标题" width="200" trigger="hover" content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。"
-    @hide="hide"
-    @after-leave="handleAfterLeave"
-     :reference="reference.dom" >
+    <!-- <div slot="reference">hover 激活</div> -->reference.show:{{reference.show}}
+    <el-popover v-if="reference.show" placement="top-start" title="标题" width="200" trigger="hover"  @hide="hide" @after-leave="handleAfterLeave"
+      :reference="reference.dom">
       <div style="padding: 8px;">
         <div style="color: #CACACA">当前内容new：</div>
-        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{data_current_content}}</div>
+        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{data.data_current_content}}</div>
       </div>
       <div style="background: #444; height:1px;"></div>
       <div style="padding: 8px;">
         <table style="width:100%;color:#fff;font-size:13px;background:#333;border:1px solid #333;">
           <tr>
             <td>点击次数: </td>
-            <td style="text-align:right;">{{value_fix}}次</td>
+            <td style="text-align:right;">{{data.value_fix}}次</td>
           </tr>
           <tr>
             <td style="cursor:pointer;" title="点击次数/当前页面的浏览次数"><span style="float:left;">点击率</span>
@@ -34,7 +31,7 @@
                 </svg>
               </span>
             </td>
-            <td style="text-align:right;">{{data_click_percent}}</td>
+            <td style="text-align:right;">{{data.data_click_percent}}</td>
           </tr>
           <tr>
             <td style="cursor:pointer;" title="点击次数/当前页面的点击总次数"><span style="float:left;">点击占比</span> <span style="float:left;margin-left:3px;"><svg width="12px" height="12px" viewBox="0 0 12 12"
@@ -49,17 +46,17 @@
                     </g>
                   </g>
                 </svg></span></td>
-            <td style="text-align:right;">{{data_page_percent}}</td>
+            <td style="text-align:right;">{{data.data_page_percent}}</td>
           </tr>
         </table>
       </div>
       <div style="background: #444; height:1px;"></div>
       <div style="padding: 8px;">
         <div style="color: #CACACA;">历史内容：</div>
-        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{data_top_value}}</div>
+        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{data.data_top_value}}</div>
       </div>
       <div style="background: #444; height:1px;"></div>
-      <div style="padding: 6px 8px;"><a style="color:#2a90e2;text-decoration: none;" :href="data_user_link" target="_blank">查看用户列表</a></div>
+      <div style="padding: 6px 8px;"><a style="color:#2a90e2;text-decoration: none;" :href="data.data_user_link" target="_blank">查看用户列表</a></div>
 
     </el-popover>
   </div>
@@ -76,13 +73,17 @@ export default {
   props: {
     reference: {
       type: Object,
-      default: ()=>({
+      default: () => ({
         show: false,
         dom: null
-      }),
-      
+      })
     },
-    data_current_content: null, value_fix: null, data_click_percent: null, data_page_percent: null, data_top_value: null, data_user_link: null
+    data: {
+      type: Object,
+      default: () => ({}),
+    },
+
+
   },
   data() {
     return {
@@ -97,7 +98,7 @@ export default {
       // debugger
       this.$emit('afterLeave')
     },
-    hide(){
+    hide() {
       // debugger
 
       console.log('afterLeave-hide');

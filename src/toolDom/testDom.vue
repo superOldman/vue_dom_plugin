@@ -3,8 +3,12 @@
     <!-- <el-button type="primary" class="tt">按钮</el-button> -->
     <div class="toolbar">
       <div style="height:39px;line-height:39px;padding:3px 15px 9px">
-        <div class="sa-sdk-heatmap-toolbar-selectmap" id="chooseType" style="position:relative;width:70px;float:left" title="选择查看类型">
-          <div style="cursor:pointer" @click="selectShow=!selectShow" v-clickoutside="()=>selectShow=false">
+        <!-- <div class="sa-sdk-heatmap-toolbar-selectmap" id="chooseType" style="position:relative;width:100px;float:left" title="选择查看类型"> -->
+        <el-select class="menu-type" v-model="chartType" @change="setHeatState" style="width:100px;" title="选择查看类型">
+          <el-option label="点击图1" :value="1"></el-option>
+          <el-option label="触达率图" :value="2"></el-option>
+        </el-select>
+        <!-- <div style="cursor:pointer" @click="selectShow=!selectShow" v-clickoutside="()=>selectShow=false">
             <span>{{heatMode==1?'点击图':'触达率图'}}</span>
             <svg style="position:absolute;top:9px" width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
               <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -17,24 +21,14 @@
           <ul v-show="selectShow" style="list-style:none;margin:0;padding:0;width:100px">
             <li data-state="1" @click="setHeatState">点击图1</li>
             <li data-state="2" @click="setHeatState">触达率图</li>
-          </ul>
-        </div>
-        <div v-if="heatMode==1" class="sa-sdk-heatmap-toolbar-selectmap" id="chooseVersion" style="position:relative;width:70px;float:left" title="切换点击图方案">
-          <div style="cursor:pointer" @click="selectClickShow=!selectClickShow" v-clickoutside="()=>selectClickShow=false">
-            <span>方案一</span>
-            <svg style="position:absolute;top:9px" width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-              <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="icon" transform="translate(-199.000000, -18.000000)" fill="#99A9BF">
-                  <polygon id="Triangle-1-Copy-29" transform="translate(209.000000, 28.000000) scale(1, -1) translate(-209.000000, -28.000000) " points="209 26 213 30 205 30"></polygon>
-                </g>
-              </g>
-            </svg>
-          </div>
-          <ul v-show="selectClickShow" style="list-style:none;margin:0;padding:0;width:100px">
-            <li data-state="1">方案一</li>
-            <li data-state="2" @click="refreshHeatData(2)">方案二</li>
-          </ul>
-        </div>
+          </ul> -->
+        <!-- </div> -->
+
+        <el-select class="menu-type" v-if="heatMode==1" v-model="chartType" @change="refreshHeatData" style="width:90px;" title="切换点击图方案">
+          <el-option label="方案一" :value="1"></el-option>
+          <el-option label="方案二" :value="2"></el-option>
+        </el-select>
+
         <div id="sa_sdk_heatmap_toolbar_close" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="收起打开">
           <svg style="position:absolute;top:9px;right:0" width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -44,9 +38,10 @@
             </g>
           </svg>
         </div>
+
         <div style="float:right;padding:0 10px;width:1px;color:#99A9BF">|</div>
-        <div id="sa_sdk_heatmap_toolbar_refresh" style="float:right;position:relative;cursor:pointer;width:30px;height:100%" title="刷新数据"><svg style="position:absolute;top:9px;left:5px" width="20px"
-            height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <div id="sa_sdk_heatmap_toolbar_refresh" style="float:right;position:relative;cursor:pointer;width:30px;height:100%" title="刷新数据">
+          <svg style="position:absolute;top:9px;left:5px" width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
               <g>
                 <g>
@@ -57,9 +52,19 @@
                 </g>
               </g>
             </g>
-          </svg></div>
+          </svg>
+        </div>
         <div style="float:right;padding:0 10px;width:1px;color:#99A9BF">|</div>
-        <div id="sa_sdk_heatmap_toolbar_share" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="打开分享" @click="lookView">
+
+        <el-popover placement="top-start" width="260" trigger="manual" v-model="showQR">
+          <div style="height:24px;line-height:24px;border-bottom:1px solid #E9F0F7;text-align:center;color:#475669;font-size:14px;position:relative;">
+            分享链接
+            <close @click.native="showQR=false" style="position:absolute;top:2px;color:#99A9BF;cursor:pointer;right:4px" />
+          </div>
+          <div class="the-qr" style="width:128px;height:128px;margin: 16px auto;"></div>
+          <share slot="reference" class="hand" style="float:right;position:relative;width:16px;top: 10px;cursor:pointer" title="打开分享" @click.native="lookView" />
+        </el-popover>
+        <!-- <div id="sa_sdk_heatmap_toolbar_share" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="打开分享" @click="lookView">
           <svg style="position:absolute;top:11px; left: 5px;" width="14px" height="15px" viewBox="0 0 14 15" version="1.1" xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink">
             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -73,7 +78,7 @@
               </g>
             </g>
           </svg>
-        </div>
+        </div> -->
         <!-- 筛选 -->
         <!-- <div style="float:right;padding:0 10px;width:1px;color:#99A9BF">|</div>
         <div id="sa_sdk_heatmap_toolbar_filter" style="float:right;position:relative;cursor:pointer;width:30px;height:100%;" title="筛选">
@@ -91,6 +96,8 @@
         </div> -->
       </div>
       <!-- 二维码弹窗 -->
+
+      <!-- 
       <div v-show="showQR" v-clickoutside="()=>showQR=false"
         style="z-index:999999;width:260px;height:260px;position:fixed;right:2px;top:55px;background:#FFF;box-shadow:0 2px 9px 3px rgba(168,173,178,.39);border-radius:3px;">
         <div style="height:44px;line-height:44px;border-bottom:1px solid #E9F0F7;text-align:center;color:#475669;font-size:14px;position:relative;">
@@ -114,8 +121,8 @@
         <div style="margin:20px">
           <input style="font-size:14px;outline:none;color:#475669;width:92%;border:1px solid #D3DCE6;border-radius:3px;height:32px;line-height:32px;padding:0 10px;" type="text" value="">
         </div>
-      </div>
-      <detailTips :reference="reference" @afterLeave="afterLeave" />
+      </div> -->
+      <detailTips :reference="reference" :data="referenceData" @afterLeave="afterLeave" />
     </div>
   </div>
 </template>
@@ -126,10 +133,13 @@ import urlParse from '@/toolDom/urlParse'
 import QRCode from './QRcode'
 import Clickoutside from 'element-ui/src/utils/clickoutside'
 import detailTips from '@/toolDom/components/detailTips/index.vue'
+import share from '@/svg/share.vue'
+import close from '@/svg/close.vue'
+
 export default {
   name: 'test',
   components: {
-    detailTips
+    detailTips, share, close
   },
   props: {
 
@@ -140,6 +150,7 @@ export default {
       showQR: false,
       selectShow: false,
       selectClickShow: false,
+      chartType: 1,
       heatMode: 1,
       originalHeatData: null,
       ajaxHeatData: null,
@@ -150,6 +161,7 @@ export default {
         show: false,
         dom: null
       },
+      referenceData: {},
       referenceList: []
     }
   },
@@ -163,7 +175,7 @@ export default {
     // this.getCurrentUrl()
     // 二维码
     this.$nextTick(() => {
-      const qrCodeEle = document.querySelector('.the-qr')
+      let qrCodeEle = document.querySelector('.the-qr')
       new QRCode(qrCodeEle, {
         text: window.location.href,
         width: 128,
@@ -175,14 +187,13 @@ export default {
     })
     // 
 
-    this.addScrollAndResizeEvent()
   },
   methods: {
     afterLeave() {
       this.reference.show = false
 
 
-      // const self = this
+      // let self = this
       // if(this.referenceList.length){
       //   setTimeout(e=>{
       //     self.reference.show = true
@@ -192,8 +203,8 @@ export default {
       // }
     },
     getCurrentUrl() {
-      var href = urlParse(location.href);
-      var obj = {};
+      let href = urlParse(location.href);
+      let obj = {};
 
       obj['sa-request-url'] = sessionStorage.getItem('sensors_heatmap_url');
       obj['sa-request-url'] = obj['sa-request-url'] ? encodeURIComponent(obj['sa-request-url']) : '';
@@ -208,12 +219,12 @@ export default {
       return href.getUrl();
     },
 
-    bindEffect2() {
-      var current_over = null;
-      var self = this
+    bindEffect() {
+      let current_over = null;
+      let self = this
       if (/iPhone|Android/i.test(navigator.userAgent)) {
         $(document).on('mouseover', '[sa-click-area],[sa-click-area-v2]', function (e) {
-          var target = e.target;
+          let target = e.target;
           current_over = target;
           $(target).on('mouseleave', function () {
             if (me.is_fix_state === 'notfix') {
@@ -231,17 +242,18 @@ export default {
       } else {
         // mouseover
         $(document).on('mouseenter', '[sa-click-area],[sa-click-area-v2]', function (e) {
-          var target = e.target;
+          let target = e.target;
           current_over = target;
           // showBoxDetail(e);
           self.showBoxDetailContent(e)
         });
       }
     },
+    // 整合数据 弹窗
     showBoxDetailContent(e) {
-      var target = e.target
-      var currentTarget = e.currentTarget
-      var data = $(target).data('clickdata')
+      let target = e.target
+      let currentTarget = e.currentTarget
+      let data = $(target).data('clickdata')
       while (!data && target.parentNode) {
         target = target.parentNode;
         data = $(target).data('clickdata');
@@ -253,8 +265,8 @@ export default {
         return false;
       }
 
-      var textContent;
-      var heatmapCallback = _.isObject(sd.para.heatmap) ? sd.para.heatmap.setContent : null;
+      let textContent;
+      let heatmapCallback = _.isObject(sd.para.heatmap) ? sd.para.heatmap.setContent : null;
       if (heatmapCallback && typeof heatmapCallback === 'function') {
         textContent = heatmapCallback(target);
         if (textContent && typeof textContent === 'string') {
@@ -273,6 +285,8 @@ export default {
           .substring(0, 255);
       }
       data.data_current_content = textContent || '没有值';
+
+      this.referenceData = data
       if (this.reference.show) {
         console.log('mouseover-准备show');
         setTimeout(() => {
@@ -287,13 +301,9 @@ export default {
       }
     },
 
-
-
-
-
     addScrollAndResizeEvent() {
-      var timer = null;
-      var clearFlag = false;
+      let timer = null;
+      let clearFlag = false;
       let self = this
       $(window).on('scroll.v2', function () {
         if (!clearFlag) {
@@ -327,27 +337,28 @@ export default {
         }
       };
     },
+
     setClickMap(id, url) {
-      var me = this;
+      let me = this;
       if (typeof id === 'string' && sd.para.web_url) {
-        var urlParse = new _.urlParse(sd.para.web_url);
+        let urlParse = new _.urlParse(sd.para.web_url);
         urlParse._values.Path = '/api/heat_map/report/' + id;
 
-        var urlParse2 = new _.urlParse(sd.para.web_url);
+        let urlParse2 = new _.urlParse(sd.para.web_url);
         urlParse2._values.Path = '/api/heat_map/report/path/' + id;
-        var urlParse2Value = urlParse2.getUrl();
+        let urlParse2Value = urlParse2.getUrl();
         if (urlParse2Value.indexOf('?') === -1) {
           urlParse2Value = urlParse2Value + '?pathUrl=' + encodeURIComponent(url);
         } else {
           urlParse2Value = urlParse2Value + '&pathUrl=' + encodeURIComponent(url);
         }
 
-        var jsonpUrlParse = new _.urlParse(sd.para.web_url);
+        let jsonpUrlParse = new _.urlParse(sd.para.web_url);
         jsonpUrlParse._values.Path = '/api/v2/sa/heat_maps/report/jsonp/' + id;
 
-        var jsonpUrlParse2 = new _.urlParse(sd.para.web_url);
+        let jsonpUrlParse2 = new _.urlParse(sd.para.web_url);
         jsonpUrlParse2._values.Path = '/api/v2/sa/heat_maps/report/path/jsonp/' + id;
-        var jsonpUrlParse2Value = jsonpUrlParse2.getUrl();
+        let jsonpUrlParse2Value = jsonpUrlParse2.getUrl();
         if (jsonpUrlParse2Value.indexOf('?') === -1) {
           jsonpUrlParse2Value = jsonpUrlParse2Value + '?pathUrl=' + encodeURIComponent(url);
         } else {
@@ -361,11 +372,11 @@ export default {
         } else {
           this.requestType = 1;
         }
-        const test = {
+        let test = {
           "error_msg": "OK", "is_success": true,
           "data": { "heat_map_id": "193b91c8-dc03-4bd7-a041-3f7e0d6a0c94", "by_fields": ["event.$WebClick.$element_selector"], "rows": [{ "top_values": [""], "values": [[3]], "by_values": ["#c-name"] }, { "top_values": [""], "values": [[6]], "by_values": ["#container \u003e footer:nth-of-type(1) \u003e div:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[3]], "by_values": ["#country"] }, { "top_values": ["Save"], "values": [[1]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e form:nth-of-type(1) \u003e div:nth-of-type(7) \u003e div:nth-of-type(1) \u003e button:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#email"] }, { "top_values": ["UI Elements"], "values": [[1]], "by_values": ["#nav-accordion \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Forms"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(5) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#phone"] }, { "top_values": [""], "values": [[1]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e button:nth-of-type(2)"] }, { "top_values": [""], "values": [[3]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e form:nth-of-type(1) \u003e div:nth-of-type(5) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": ["Overview"], "values": [[5]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": ["Contact"], "values": [[11]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Edit Profile"], "values": [[7]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": ["Extra Pages"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(4) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[2]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e button:nth-of-type(1)"] }, { "top_values": ["Components"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": ["Mail 2"], "values": [[1]], "by_values": ["#nav-accordion \u003e li:nth-of-type(7) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[6]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": [""], "values": [[2]], "by_values": ["#skype"] }, { "top_values": [""], "values": [[2]], "by_values": ["#lives-in"] }], "page_view": 22, "report_update_time": "2023-02-20 09:54:31.932", "data_update_time": "2023-02-20 09:50:08.000", "data_sufficient_update_time": "2023-02-20 09:43:40.000", "truncated": false, "sampling_factor": 64 }
         }
-        // const test = {
+        // let test = {
         //   "error_msg": "OK", "is_success": true,
         //   "data": {
         //     "heat_map_id": "d88e6ff5-b63f-4a7c-ba51-b4292277ec71", "by_fields": ["event.$WebClick.$element_selector"],
@@ -377,9 +388,22 @@ export default {
         me.originalHeatData = me.processOriginalHeatData(test.data);
         // 加载热力框dom
         // me.bindEffect();
-        me.bindEffect2();
+        me.bindEffect();
         // 计算热力数据
         me.calculateHeatData(test.data);
+
+        heatmap.getServerData.start({
+          url: {
+            ajax: 'http://192.168.26.106:8888/heatMapPage/clickGraph?heatMapId=123123',
+            jsonp: 'http://192.168.26.106:8888/heatMapPage/clickGraph?heatMapId=123123'
+          },
+          success: function (data) {
+            console.log('success', data);
+          },
+          error: function (res) {
+            console.log('error', res);
+          }
+        });
 
 
         // heatmap.getServerData.start({
@@ -390,11 +414,11 @@ export default {
         //   success: function (data) {
         //     // 假数据
 
-        //     const test = {
+        //     let test = {
         //       "error_msg": "OK", "is_success": true,
         //       "data": { "heat_map_id": "193b91c8-dc03-4bd7-a041-3f7e0d6a0c94", "by_fields": ["event.$WebClick.$element_selector"], "rows": [{ "top_values": [""], "values": [[3]], "by_values": ["#c-name"] }, { "top_values": [""], "values": [[6]], "by_values": ["#container \u003e footer:nth-of-type(1) \u003e div:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[3]], "by_values": ["#country"] }, { "top_values": ["Save"], "values": [[1]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e form:nth-of-type(1) \u003e div:nth-of-type(7) \u003e div:nth-of-type(1) \u003e button:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#email"] }, { "top_values": ["UI Elements"], "values": [[1]], "by_values": ["#nav-accordion \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Forms"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(5) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#phone"] }, { "top_values": [""], "values": [[1]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e button:nth-of-type(2)"] }, { "top_values": [""], "values": [[3]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e form:nth-of-type(1) \u003e div:nth-of-type(5) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": ["Overview"], "values": [[5]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": ["Contact"], "values": [[11]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Edit Profile"], "values": [[7]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": ["Extra Pages"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(4) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[2]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e button:nth-of-type(1)"] }, { "top_values": ["Components"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": ["Mail 2"], "values": [[1]], "by_values": ["#nav-accordion \u003e li:nth-of-type(7) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[6]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": [""], "values": [[2]], "by_values": ["#skype"] }, { "top_values": [""], "values": [[2]], "by_values": ["#lives-in"] }], "page_view": 22, "report_update_time": "2023-02-20 09:54:31.932", "data_update_time": "2023-02-20 09:50:08.000", "data_sufficient_update_time": "2023-02-20 09:43:40.000", "truncated": false, "sampling_factor": 64 }
         //     }
-        //     // const test = {
+        //     // let test = {
         //     //   "error_msg": "OK", "is_success": true,
         //     //   "data": {
         //     //     "heat_map_id": "d88e6ff5-b63f-4a7c-ba51-b4292277ec71", "by_fields": ["event.$WebClick.$element_selector"],
@@ -418,9 +442,10 @@ export default {
         sd.log('缺少web_url');
       }
     },
+
     showErrorInfo(error_type, error_msg) {
       console.log('报错了');
-      var div = document.createElement('div');
+      let div = document.createElement('div');
       div.setAttribute('style', 'background:#e55b41;border:none;border-radius:4px;color:#fff;font-size:18px;left:50%;margin-left:-300px;padding:12px;position: fixed;top:60px;text-align: center;width:600px;z-index:999999;');
 
       if (error_type === 1) {
@@ -449,11 +474,12 @@ export default {
         document.body.removeChild(div);
       }, 5000);
     },
+
     processOriginalHeatData: function (data) {
-      var result = $.extend(true, {}, data);
+      let result = $.extend(true, {}, data);
       $.each(result.rows, function (index, value) {
         try {
-          var ele = _.querySelectorAll(value.by_values[0]);
+          let ele = _.querySelectorAll(value.by_values[0]);
           if (ele.length) {
             value.ele = ele[0];
           }
@@ -464,14 +490,14 @@ export default {
       return result;
     },
     processOriginalHeatData2: function () {
-      var data = this.originalHeatData;
-      var result = $.extend(true, {}, data);
-      var tmp = [];
-      var eletmp = [];
-      var copyRows = data.rows.slice();
+      let data = this.originalHeatData;
+      let result = $.extend(true, {}, data);
+      let tmp = [];
+      let eletmp = [];
+      let copyRows = data.rows.slice();
       $.each(copyRows, function (index, value) {
         if (!value.ele) return true;
-        var idx = $.inArray(value.ele, eletmp);
+        let idx = $.inArray(value.ele, eletmp);
         if (idx === -1) {
           eletmp.push(value.ele);
           tmp.push($.extend(true, {}, value));
@@ -487,7 +513,7 @@ export default {
     calculateHeatData: function (data) {
       data = $.extend(true, {}, data);
       this.ajaxHeatData = data;
-      var me = this;
+      let me = this;
 
       if (!_.isObject(data) || !_.isArray(data.rows) || !_.isObject(data.rows[0])) {
         me.showErrorInfo(me.requestType);
@@ -499,17 +525,17 @@ export default {
         });
         return false;
       }
-      var pv = parseInt(data.page_view, 10);
-      var heat_map_id = data.heat_map_id;
+      let pv = parseInt(data.page_view, 10);
+      let heat_map_id = data.heat_map_id;
       data = data.rows;
 
-      var dataPageTotal = 0;
-      var templeUsableData = [];
-      var usableData = [];
-      var usableElem = [];
+      let dataPageTotal = 0;
+      let templeUsableData = [];
+      let usableData = [];
+      let usableElem = [];
 
-      _.each(data, function (obj) {
-        var elem = null;
+      data.forEach(obj => {
+        let elem = null;
         if (obj.by_values[0] && (elem = _.querySelectorAll(obj.by_values[0])[0])) {
           templeUsableData.push(obj);
           usableElem.push(elem);
@@ -517,8 +543,8 @@ export default {
       });
 
       if (templeUsableData.length > 1) {
-        for (var i = 0; i < usableElem.length; i++) {
-          for (var j = i + 1; j < usableElem.length; j++) {
+        for (let i = 0; i < usableElem.length; i++) {
+          for (let j = i + 1; j < usableElem.length; j++) {
             if (usableElem[i] === usableElem[j]) {
               templeUsableData[j].values[0][0] += templeUsableData[i].values[0][0];
               templeUsableData[i].values[0][0] = 0;
@@ -529,15 +555,13 @@ export default {
         }
       }
 
-      _.each(templeUsableData, function (obj) {
+      templeUsableData.forEach(obj => {
         if (obj.by_values[0] && _.querySelectorAll(obj.by_values[0])[0]) {
           usableData.push(obj);
         }
       });
 
-      usableData = _.filter(usableData, function (a) {
-        return a;
-      });
+      usableData = usableData.filter(e => e)
 
       if (usableData.length === 0) {
         me.showErrorInfo(me.requestType);
@@ -545,14 +569,15 @@ export default {
 
       data = usableData;
 
-      _.each(data, function (obj) {
+      data.forEach(obj => {
         obj.value_fix = obj.values[0][0];
         dataPageTotal += obj.value_fix;
       });
 
+
       me.data_render = data;
 
-      _.each(data, function (obj, key) {
+      data.forEach((obj, key) => {
         if (obj.by_values[0]) {
           obj.data_page_percent = Number((obj.value_fix / dataPageTotal) * 100).toFixed(2) + '%';
 
@@ -561,7 +586,7 @@ export default {
           obj.data_click = Number(obj.value_fix / pv);
           obj.data_page = Number(obj.value_fix / dataPageTotal);
 
-          var urlParse = new _.urlParse(sd.para.web_url);
+          let urlParse = new _.urlParse(sd.para.web_url);
           urlParse._values.Path = '/web-click/users';
           if (me.requestType === 3) {
             obj.data_user_link = urlParse.getUrl() + '#heat_map_id=' + heat_map_id + '&detail=true&element_selector=' + encodeURIComponent(obj.by_values[0]) + '&page_url=' + encodeURIComponent(location.href);
@@ -574,25 +599,27 @@ export default {
             obj.data_top_value = String(obj.top_values[0]);
           }
 
-          var selector = _.querySelectorAll(obj.by_values[0]);
+          let selector = _.querySelectorAll(obj.by_values[0]);
           if (typeof selector === 'object' && selector.length > 0) {
             setTimeout(function () {
               me.renderHeatData(selector, obj, key);
             }, 100);
           }
         }
-      });
+      })
+
+
     },
     renderHeatData: function (selector, data, key) {
-      var dom = _.ry(selector[0]);
-      var wrap = null;
+      let dom = _.ry(selector[0]);
+      let wrap = null;
 
-      var tagName = dom.ele.tagName.toLowerCase();
+      let tagName = dom.ele.tagName.toLowerCase();
 
       if (this.heatMode == 1) {
         if (tagName === 'input' || tagName === 'textarea' || tagName === 'img' || tagName === 'svg') {
           dom.attr('data-heat-place', String(key));
-          var width = $(selector[0]).width();
+          let width = $(selector[0]).width();
           wrap = dom.wrap('span');
           if (typeof width === 'number') {
             wrap.ele.style.width = width;
@@ -612,7 +639,7 @@ export default {
           $(selector[0]).attr('sa-heatmap-inlineBlock', '');
         }
       } else if (this.heatMode === 2) {
-        var eleWidth, eleHeight, eleLeft, eleTop;
+        let eleWidth, eleHeight, eleLeft, eleTop;
         if ($(selector[0]).is(':visible') && String($(selector[0]).css('opacity')) !== '0') {
           if (tagName === 'a') {
             if ($(selector[0]).css('display') === 'inline') {
@@ -645,7 +672,7 @@ export default {
           $(dom.ele).attr('sa-click-area-v2', '');
           $(dom.ele).data('clickdata', $.extend(true, {}, data));
           if (eleHeight && eleWidth) {
-            var mapDivObj = {
+            let mapDivObj = {
               width: eleWidth,
               height: eleHeight,
               left: eleLeft,
@@ -655,7 +682,7 @@ export default {
               'pointer-events': 'none'
             };
 
-            var heatMapDiv = $('<div sa-click-area></div>');
+            let heatMapDiv = $('<div sa-click-area></div>');
             heatMapDiv.css(mapDivObj);
             heatMapDiv.attr('data-click', data.data_click_percent);
             heatMapDiv.attr('sa-click-area', this.heatData(data.data_click));
@@ -668,22 +695,22 @@ export default {
         }
       }
     },
-    testC() {
-      console.log(3123123);
-    },
     refreshHeatData: function (targetVersion) {
       if (this.heatMode == 1) {
-        _.each(this.heatDataElement, function (ele) {
-          var tagName = ele.ele.tagName.toLowerCase();
+
+        this.heatDataElement.forEach(ele => {
+          let tagName = ele.ele.tagName.toLowerCase();
           if (tagName === 'input' || tagName === 'textarea' || tagName === 'img' || tagName === 'svg') {
-            var parent = ele.parent();
+            let parent = ele.parent();
             if (parent && parent.ele.tagName.toLowerCase() === 'span' && !_.isUndefined($(parent.ele).attr('sa-click-area'))) {
               $(ele.ele).unwrap();
             }
           } else {
             $(ele.ele).removeAttr('sa-click-area');
           }
-        });
+        })
+
+
         $('[sa-heatmap-inlineBlock]').css('display', 'inline');
         $('[sa-heatmap-inlineBlock]').removeAttr('sa-heatmap-inlineBlock');
         this.heatDataElement = [];
@@ -695,6 +722,9 @@ export default {
       }
 
       this.heatMode = targetVersion;
+      if (this.heatMode == 2) {
+        this.addScrollAndResizeEvent()
+      }
       this.calculateHeatData(this.ajaxHeatData);
     },
     setNoticeMap: function () { },
@@ -704,24 +734,24 @@ export default {
       }
       el.classList.add('saContainer');
       if (el && el.children) {
-        var arr = el.children;
-        for (var i = 0; i < arr.length; i++) {
+        let arr = el.children;
+        for (let i = 0; i < arr.length; i++) {
           this.setContainer(arr[i]);
         }
       }
     },
     heatData: function (data) {
-      var heat = [0.005, 0.01, 0.025, 0.05, 0.1, 0.5];
-      for (var i = 0; i < heat.length; i++) {
+      let heat = [0.005, 0.01, 0.025, 0.05, 0.1, 0.5];
+      for (let i = 0; i < heat.length; i++) {
         if (data < heat[i]) {
-          return i;
+          return i
         }
       }
-      return 6;
+      return 6
     },
     getQueryString(name) {
-      var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-      var r = window.location.search.substr(1).match(reg);
+      let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+      let r = window.location.search.substr(1).match(reg);
       if (r != null) return unescape(r[2]); return null;
     },
     lookView() {
@@ -733,27 +763,27 @@ export default {
     setHeatState: function (data, type, url, isFirst) {
       if (isFirst) {
         if (type === '1') {
-          this.setClickMap(data, url);
+          this.setClickMap(data, url)
         } else if (type === '2') {
-          this.setScrollMap(data, url);
+          this.setScrollMap(data, url)
         } else if (type === '3') {
-          this.setNoticeMap(data, url);
+          this.setNoticeMap(data, url)
         }
       } else {
-        var href = urlParse(location.href);
+        let href = urlParse(location.href);
         if (!data) {
           return false;
         }
         if (!type) {
           type = 1;
         }
-        var obj = {
+        let obj = {
           'sa-request-id': data,
           'sa-request-type': type,
           'sa-request-url': sessionStorage && sessionStorage.getItem ? sessionStorage.getItem('sensors_heatmap_url') || '' : ''
         };
         try {
-          var windowNameParam = {};
+          let windowNameParam = {};
           if (_.isJSONString(window.name)) {
             windowNameParam = JSON.parse(window.name);
             window.name = JSON.stringify(_.extend(windowNameParam, obj));
@@ -782,28 +812,7 @@ export default {
 [sa-click-area] video {
   visibility: hidden;
 }
-.sa-sdk-heatmap-toolbar-selectmap ul {
-  position: absolute;
-  top: 40px;
-  left: 0;
-  background: #fff;
-  box-shadow: 1px 1px 1px rgba(200, 200, 200, 0.6);
-  border-radius: 3px;
-}
-.sa-sdk-heatmap-toolbar-selectmap ul li {
-  cursor: pointer;
-  height: 32px;
-  color: #475669;
-  line-height: 32px;
-  padding-left: 8px;
-}
-.sa-sdk-heatmap-toolbar-selectmap ul li:hover {
-  background: #00cd90;
-  color: #fff;
-}
-.sa-sdk-heatmap-toolbar-selectmap ul li a {
-  text-decoration: none;
-}
+
 .sa-heat-box-head-2017322 {
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   cursor: move;
@@ -811,20 +820,6 @@ export default {
   background: #e1e1e1;
   color: #999;
   clear: both;
-}
-.sa-heat-box-effect-2017314 {
-  animation-duration: 0.5s;
-  animation-fill-mode: both;
-  animation-iteration-count: 1;
-  animation-name: sa-heat-box-effect-2017314;
-}
-@keyframes "sa-heat-box-effect-2017314" {
-  0% {
-    opacity: 0.6;
-  }
-  to {
-    opacity: 1;
-  }
 }
 [sa-click-area] {
   position: relative;
@@ -989,6 +984,16 @@ textarea[sa-click-area="6"] {
 }
 </style>
 <style scoped lang="scss">
+.hand {
+  cursor: pointer;
+}
+.menu-type {
+  ::v-deep .el-input__inner {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+  }
+}
 .toolbar {
   height: 50px !important;
   z-index: 9999999;
