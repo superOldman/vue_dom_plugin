@@ -57,7 +57,16 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env']
+                        presets: ['@babel/preset-env'],
+                        plugins: [
+                            'syntax-dynamic-import',
+                            ["component", 
+                                {
+                                    "libraryName": "element-ui",
+                                    "styleLibraryName": "theme-chalk"
+                                }
+                            ]
+                        ]
                     }
                 }
             },

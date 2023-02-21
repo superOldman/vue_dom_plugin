@@ -1,7 +1,8 @@
 <template>
   <div>
     <!-- :after-leave="afterLeave" -->
-    <!-- <div slot="reference">hover 激活</div> -->reference.show:{{reference.show}}
+    <!-- <div slot="reference">hover 激活</div> -->
+    <!-- reference.show:{{reference.show}} -->
     <el-popover v-if="reference.show" placement="top-start" title="标题" width="200" trigger="hover"  @hide="hide" @after-leave="handleAfterLeave"
       :reference="reference.dom">
       <div style="padding: 8px;">
@@ -63,13 +64,9 @@
 </template>
 
 <script>
-// import elpopover from '@/toolDom/components/popover/index.js'
-// console.log(11111111,elpopover);
 export default {
   name: 'detailTips',
-  components: {
-    // elpopover
-  },
+  components: {},
   props: {
     reference: {
       type: Object,
@@ -95,16 +92,10 @@ export default {
   },
   methods: {
     handleAfterLeave() {
-      // debugger
       this.$emit('afterLeave')
     },
     hide() {
-      // debugger
-
       console.log('afterLeave-hide');
-
-      // this.$emit('afterLeave')
-
     }
   }
 }

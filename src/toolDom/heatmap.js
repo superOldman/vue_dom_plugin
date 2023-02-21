@@ -1,9 +1,10 @@
 const heatmap = {
+  $zd: null,
   jsonp_timer: null,
   getServerData: {
     ajax: function (obj) {
-      let _this = this;
-      _.ajax({
+      let me = this;
+      heatmap.$zd._.ajax({
         url: obj.url.ajax,
         type: 'POST',
         cors: true,
@@ -14,11 +15,11 @@ const heatmap = {
           obj.success(data);
         },
         error: function (res) {
-          if (_.isObject(res) && res.error) {
+          if (heatmap.$zd._.isObject(res) && res.error) {
             obj.error(res);
           } else {
-            sd.log('AJAX 请求失败，转换为 JSONP 请求', res);
-            _this.jsonp(obj);
+            heatmap.$zd.log('AJAX 请求失败，转换为 JSONP 请求', res);
+            me.jsonp(obj);
           }
         },
         timeout: 5000
@@ -37,7 +38,7 @@ const heatmap = {
         obj.success(data);
         window.localStorage.setItem('sensors_heatmap_method', 'jsonp');
       },
-        error = _.isFunction(obj.error) ? obj.error : function () { },
+        error = heatmap.$zd._.isFunction(obj.error) ? obj.error : function () { },
         timeout = obj.timeout || 8000;
       let me = this;
       if (this.jsonp_timer !== null) {
@@ -49,33 +50,33 @@ const heatmap = {
         });
       }, timeout);
 
-      _.jsonp({
+      heatmap.$zd._.jsonp({
         url: obj.url.jsonp,
         callbackName: 'saJSSDKHeatRender',
         success: function (data) {
           if (me.jsonp_timer !== null) {
             clearTimeout(me.jsonp_timer);
           }
-          if (data && _.isObject(data) && data.is_success) {
-            if (_.isObject(data.data)) {
+          if (data && heatmap.$zd._.isObject(data) && data.is_success) {
+            if (heatmap.$zd._.isObject(data.data)) {
               success(data.data);
             } else {
               error({
                 error: 'JSONP 点击数据解析异常'
               });
-              sd.log('解析数据异常', data);
+              heatmap.$zd.log('解析数据异常', data);
             }
           } else {
-            if (data && _.isObject(data) && data.is_success === false) {
+            if (data && heatmap.$zd._.isObject(data) && data.is_success === false) {
               error({
                 error: data.error_msg
               });
-              sd.log('获取数据失败', data.error_msg);
+              heatmap.$zd.log('获取数据失败', data.error_msg);
             } else {
               error({
                 error: 'JSONP 数据结构异常'
               });
-              sd.log('获取数据异常', data);
+              heatmap.$zd.log('获取数据异常', data);
             }
           }
         },
@@ -88,7 +89,7 @@ const heatmap = {
               error: 'JSONP 请求超时，请尝试刷新页面'
             });
           } else {
-            if (_.URL(location.href).protocol === 'https:' && _.URL(obj.url.jsonp).protocol === 'http:') {
+            if (heatmap.$zd._.URL(location.href).protocol === 'https:' && heatmap.$zd._.URL(obj.url.jsonp).protocol === 'http:') {
               error({
                 error: '该页面协议为 https ，请使用 https 的神策后台查看热力图'
               });
@@ -116,7 +117,7 @@ const heatmap = {
   },
   sendIframeData: function () {
     let me = this;
-    _.bindReady(function () {
+    heatmap.$zd._.bindReady(function () {
       if (window && window.parent && window.parent.window && window !== window.parent.window) {
         let iframe_height = me.getScrollHeight();
         window.parent.window.postMessage({
@@ -125,7 +126,7 @@ const heatmap = {
             height: iframe_height > 600 ? iframe_height : 600
           }
         },
-          sd.para.web_url
+          heatmap.$zd.para.web_url
         );
         window.parent.window.postMessage({
           method: 'setUrl',
@@ -134,7 +135,7 @@ const heatmap = {
             url: location.href
           }
         },
-          sd.para.web_url
+          heatmap.$zd.para.web_url
         );
       }
     });
@@ -146,14 +147,14 @@ const heatmap = {
       return false;
     }
 
-    if (sd.errorMsg) {
+    if (heatmap.$zd.errorMsg) {
       heatmap_render.showErrorInfo(2, {
-        error: sd.errorMsg
+        error: heatmap.$zd.errorMsg
       });
     }
 
-    let web_url = sd.para.web_url || null;
-    if (!web_url && _.sessionStorage.isSupport() && sessionStorage.getItem && sessionStorage.getItem('sensors_heatmap_url')) {
+    let web_url = heatmap.$zd.para.web_url || null;
+    if (!web_url && heatmap.$zd._.sessionStorage.isSupport() && sessionStorage.getItem && sessionStorage.getItem('sensors_heatmap_url')) {
       web_url = sessionStorage.getItem('sensors_heatmap_url') || null;
     }
 
@@ -167,14 +168,14 @@ const heatmap = {
           me.sendIframeData();
           fn && fn()
         },
-        _.isObject(sd.para.heatmap) && sd.para.heatmap.loadTimeout ? sd.para.heatmap.loadTimeout : 2500
+        heatmap.$zd._.isObject(heatmap.$zd.para.heatmap) && heatmap.$zd.para.heatmap.loadTimeout ? heatmap.$zd.para.heatmap.loadTimeout : 2500
       );
     }
 
     // heatmap_render.setCssStyle();
 
     if (web_url) {
-      sd.para.web_url = web_url;
+      heatmap.$zd.para.web_url = web_url;
       sessionStorage.setItem('sensors_heatmap_url', web_url);
       hasGetWebUrl();
     } else {

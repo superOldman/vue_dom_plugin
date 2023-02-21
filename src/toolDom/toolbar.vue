@@ -1,28 +1,11 @@
 <template>
   <div>
-    <!-- <el-button type="primary" class="tt">按钮</el-button> -->
     <div class="toolbar">
       <div style="height:39px;line-height:39px;padding:3px 15px 9px">
-        <!-- <div class="sa-sdk-heatmap-toolbar-selectmap" id="chooseType" style="position:relative;width:100px;float:left" title="选择查看类型"> -->
         <el-select class="menu-type" v-model="chartType" @change="setHeatState" style="width:100px;" title="选择查看类型">
           <el-option label="点击图1" :value="1"></el-option>
           <el-option label="触达率图" :value="2"></el-option>
         </el-select>
-        <!-- <div style="cursor:pointer" @click="selectShow=!selectShow" v-clickoutside="()=>selectShow=false">
-            <span>{{heatMode==1?'点击图':'触达率图'}}</span>
-            <svg style="position:absolute;top:9px" width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-              <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g id="icon" transform="translate(-199.000000, -18.000000)" fill="#99A9BF">
-                  <polygon id="Triangle-1-Copy-29" transform="translate(209.000000, 28.000000) scale(1, -1) translate(-209.000000, -28.000000) " points="209 26 213 30 205 30"></polygon>
-                </g>
-              </g>
-            </svg>
-          </div>
-          <ul v-show="selectShow" style="list-style:none;margin:0;padding:0;width:100px">
-            <li data-state="1" @click="setHeatState">点击图1</li>
-            <li data-state="2" @click="setHeatState">触达率图</li>
-          </ul> -->
-        <!-- </div> -->
 
         <el-select class="menu-type" v-if="heatMode==1" v-model="chartType" @change="refreshHeatData" style="width:90px;" title="切换点击图方案">
           <el-option label="方案一" :value="1"></el-option>
@@ -64,23 +47,7 @@
           <div class="the-qr" style="width:128px;height:128px;margin: 16px auto;"></div>
           <share slot="reference" class="hand" style="float:right;position:relative;width:16px;top: 10px;cursor:pointer" title="打开分享" @click.native="lookView" />
         </el-popover>
-        <!-- <div id="sa_sdk_heatmap_toolbar_share" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="打开分享" @click="lookView">
-          <svg style="position:absolute;top:11px; left: 5px;" width="14px" height="15px" viewBox="0 0 14 15" version="1.1" xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink">
-            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-              <g transform="translate(-42.000000, -62.000000)">
-                <g transform="translate(39.000000, 60.000000)">
-                  <rect x="0" y="0" width="20" height="20"></rect>
-                  <path
-                    d="M12.9177778,12.725 L7.76833333,9.72777778 C7.80444444,9.56166667 7.83333333,9.39555556 7.83333333,9.22222222 C7.83333333,9.04888889 7.80444444,8.88277778 7.76833333,8.71666667 L12.86,5.74833333 C13.25,6.10944444 13.7627778,6.33333333 14.3333333,6.33333333 C15.5322222,6.33333333 16.5,5.36555556 16.5,4.16666667 C16.5,2.96777778 15.5322222,2 14.3333333,2 C13.1344444,2 12.1666667,2.96777778 12.1666667,4.16666667 C12.1666667,4.34 12.1955556,4.50611111 12.2316667,4.67222222 L7.14,7.64055556 C6.75,7.27944444 6.23722222,7.05555556 5.66666667,7.05555556 C4.46777778,7.05555556 3.5,8.02333333 3.5,9.22222222 C3.5,10.4211111 4.46777778,11.3888889 5.66666667,11.3888889 C6.23722222,11.3888889 6.75,11.165 7.14,10.8038889 L12.2822222,13.8083333 C12.2461111,13.96 12.2244444,14.1188889 12.2244444,14.2777778 C12.2244444,15.4405556 13.1705556,16.3866667 14.3333333,16.3866667 C15.4961111,16.3866667 16.4422222,15.4405556 16.4422222,14.2777778 C16.4422222,13.115 15.4961111,12.1688889 14.3333333,12.1688889 C13.7844444,12.1688889 13.2933333,12.3855556 12.9177778,12.725 Z"
-                    id="Shape" fill="#99A9BF"></path>
-                </g>
-              </g>
-            </g>
-          </svg>
-        </div> -->
-        <!-- 筛选 -->
-        <!-- <div style="float:right;padding:0 10px;width:1px;color:#99A9BF">|</div>
+
         <div id="sa_sdk_heatmap_toolbar_filter" style="float:right;position:relative;cursor:pointer;width:30px;height:100%;" title="筛选">
           <svg style="position: absolute; top: 11px; left: 5px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="17px" height="15px" viewBox="0 0 17 15"
             version="1.1">
@@ -95,33 +62,6 @@
           </svg>
         </div> -->
       </div>
-      <!-- 二维码弹窗 -->
-
-      <!-- 
-      <div v-show="showQR" v-clickoutside="()=>showQR=false"
-        style="z-index:999999;width:260px;height:260px;position:fixed;right:2px;top:55px;background:#FFF;box-shadow:0 2px 9px 3px rgba(168,173,178,.39);border-radius:3px;">
-        <div style="height:44px;line-height:44px;border-bottom:1px solid #E9F0F7;text-align:center;color:#475669;font-size:14px;position:relative;">
-          分享链接
-          <span @click="showQR=false" style="position:absolute;top:4px;color:#99A9BF;cursor:pointer;right:4px"><svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1"
-              xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-              <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                <g>
-                  <g transform="translate(-1.000000, -1.000000)">
-                    <polygon fill="#99A9BF" transform="translate(11.106602, 11.106602) rotate(-45.000000) translate(-11.106602, -11.106602) "
-                      points="12.3566017 12.3566017 12.3566017 18.6066017 9.85660172 18.6066017 9.85660172 12.3566017 3.60660172 12.3566017 3.60660172 9.85660172 9.85660172 9.85660172 9.85660172 3.60660172 12.3566017 3.60660172 12.3566017 9.85660172 18.6066017 9.85660172 18.6066017 12.3566017">
-                    </polygon>
-                    <rect x="1" y="1" width="20" height="20"></rect>
-                  </g>
-                </g>
-              </g>
-            </svg>
-          </span>
-        </div>
-        <div class="the-qr" style="width:128px;height:128px;margin-left:66px;margin-top:16px"></div>
-        <div style="margin:20px">
-          <input style="font-size:14px;outline:none;color:#475669;width:92%;border:1px solid #D3DCE6;border-radius:3px;height:32px;line-height:32px;padding:0 10px;" type="text" value="">
-        </div>
-      </div> -->
       <detailTips :reference="reference" :data="referenceData" @afterLeave="afterLeave" />
     </div>
   </div>
@@ -137,7 +77,7 @@ import share from '@/svg/share.vue'
 import close from '@/svg/close.vue'
 
 export default {
-  name: 'test',
+  name: 'toolbar',
   components: {
     detailTips, share, close
   },
@@ -266,16 +206,16 @@ export default {
       }
 
       let textContent;
-      let heatmapCallback = _.isObject(sd.para.heatmap) ? sd.para.heatmap.setContent : null;
+      let heatmapCallback = this.$zd._.isObject(this.$zd.para.heatmap) ? this.$zd.para.heatmap.setContent : null;
       if (heatmapCallback && typeof heatmapCallback === 'function') {
         textContent = heatmapCallback(target);
         if (textContent && typeof textContent === 'string') {
-          textContent = _.trim(textContent);
+          textContent = this.$zd._.trim(textContent);
         } else {
           textContent = '';
         }
       } else {
-        textContent = _.trim(target.textContent);
+        textContent = this.$zd._.trim(target.textContent);
       }
 
       if (textContent) {
@@ -314,7 +254,7 @@ export default {
         timer = setTimeout(function () {
           self.refreshHeatData(self.heatMode);
           clearFlag = false;
-        }, sd.para.heatmap.renderRefreshTime || 1000);
+        }, this.$zd.para.heatmap.renderRefreshTime || 1000);
       });
       $(window).on('resize.v2', function () {
         if (!clearFlag) {
@@ -325,7 +265,7 @@ export default {
         timer = setTimeout(function () {
           self.refreshHeatData(self.heatMode);
           clearFlag = false;
-        }, sd.para.heatmap.renderRefreshTime || 1000);
+        }, this.$zd.para.heatmap.renderRefreshTime || 1000);
       });
       return function () {
         $(window).off('scroll.v2');
@@ -340,30 +280,7 @@ export default {
 
     setClickMap(id, url) {
       let me = this;
-      if (typeof id === 'string' && sd.para.web_url) {
-        let urlParse = new _.urlParse(sd.para.web_url);
-        urlParse._values.Path = '/api/heat_map/report/' + id;
-
-        let urlParse2 = new _.urlParse(sd.para.web_url);
-        urlParse2._values.Path = '/api/heat_map/report/path/' + id;
-        let urlParse2Value = urlParse2.getUrl();
-        if (urlParse2Value.indexOf('?') === -1) {
-          urlParse2Value = urlParse2Value + '?pathUrl=' + encodeURIComponent(url);
-        } else {
-          urlParse2Value = urlParse2Value + '&pathUrl=' + encodeURIComponent(url);
-        }
-
-        let jsonpUrlParse = new _.urlParse(sd.para.web_url);
-        jsonpUrlParse._values.Path = '/api/v2/sa/heat_maps/report/jsonp/' + id;
-
-        let jsonpUrlParse2 = new _.urlParse(sd.para.web_url);
-        jsonpUrlParse2._values.Path = '/api/v2/sa/heat_maps/report/path/jsonp/' + id;
-        let jsonpUrlParse2Value = jsonpUrlParse2.getUrl();
-        if (jsonpUrlParse2Value.indexOf('?') === -1) {
-          jsonpUrlParse2Value = jsonpUrlParse2Value + '?pathUrl=' + encodeURIComponent(url);
-        } else {
-          jsonpUrlParse2Value = jsonpUrlParse2Value + '&pathUrl=' + encodeURIComponent(url);
-        }
+      if (typeof id === 'string' && this.$zd.para.web_url) {
 
         $('body').append('<div id="heatMapContainer"></div>');
 
@@ -439,7 +356,7 @@ export default {
         //   }
         // });
       } else {
-        sd.log('缺少web_url');
+        this.$zd.log('缺少web_url');
       }
     },
 
@@ -477,16 +394,17 @@ export default {
 
     processOriginalHeatData: function (data) {
       let result = $.extend(true, {}, data);
-      $.each(result.rows, function (index, value) {
+
+      result.rows.forEach((index, value) => {
         try {
-          let ele = _.querySelectorAll(value.by_values[0]);
+          let ele = this.$zd._.querySelectorAll(value.by_values[0]);
           if (ele.length) {
             value.ele = ele[0];
           }
         } catch (e) {
-          sd.log('元素类名错误！', e);
+          this.$zd.log('元素类名错误！', e);
         }
-      });
+      })
       return result;
     },
     processOriginalHeatData2: function () {
@@ -495,7 +413,7 @@ export default {
       let tmp = [];
       let eletmp = [];
       let copyRows = data.rows.slice();
-      $.each(copyRows, function (index, value) {
+      copyRows.forEach((index, value) => {
         if (!value.ele) return true;
         let idx = $.inArray(value.ele, eletmp);
         if (idx === -1) {
@@ -504,7 +422,7 @@ export default {
         } else {
           tmp[idx].values[0][0] += value.values[0][0];
         }
-      });
+      })
       result.rows = tmp;
       return result;
     },
@@ -515,7 +433,7 @@ export default {
       this.ajaxHeatData = data;
       let me = this;
 
-      if (!_.isObject(data) || !_.isArray(data.rows) || !_.isObject(data.rows[0])) {
+      if (!this.$zd._.isObject(data) || !this.$zd._.isArray(data.rows) || !this.$zd._.isObject(data.rows[0])) {
         me.showErrorInfo(me.requestType);
         return false;
       }
@@ -536,7 +454,7 @@ export default {
 
       data.forEach(obj => {
         let elem = null;
-        if (obj.by_values[0] && (elem = _.querySelectorAll(obj.by_values[0])[0])) {
+        if (obj.by_values[0] && (elem = this.$zd._.querySelectorAll(obj.by_values[0])[0])) {
           templeUsableData.push(obj);
           usableElem.push(elem);
         }
@@ -556,7 +474,7 @@ export default {
       }
 
       templeUsableData.forEach(obj => {
-        if (obj.by_values[0] && _.querySelectorAll(obj.by_values[0])[0]) {
+        if (obj.by_values[0] && this.$zd._.querySelectorAll(obj.by_values[0])[0]) {
           usableData.push(obj);
         }
       });
@@ -586,7 +504,7 @@ export default {
           obj.data_click = Number(obj.value_fix / pv);
           obj.data_page = Number(obj.value_fix / dataPageTotal);
 
-          let urlParse = new _.urlParse(sd.para.web_url);
+          let urlParse = new this.$zd._.urlParse(this.$zd.para.web_url);
           urlParse._values.Path = '/web-click/users';
           if (me.requestType === 3) {
             obj.data_user_link = urlParse.getUrl() + '#heat_map_id=' + heat_map_id + '&detail=true&element_selector=' + encodeURIComponent(obj.by_values[0]) + '&page_url=' + encodeURIComponent(location.href);
@@ -599,7 +517,7 @@ export default {
             obj.data_top_value = String(obj.top_values[0]);
           }
 
-          let selector = _.querySelectorAll(obj.by_values[0]);
+          let selector = this.$zd._.querySelectorAll(obj.by_values[0]);
           if (typeof selector === 'object' && selector.length > 0) {
             setTimeout(function () {
               me.renderHeatData(selector, obj, key);
@@ -611,7 +529,7 @@ export default {
 
     },
     renderHeatData: function (selector, data, key) {
-      let dom = _.ry(selector[0]);
+      let dom = this.$zd._.ry(selector[0]);
       let wrap = null;
 
       let tagName = dom.ele.tagName.toLowerCase();
@@ -702,7 +620,7 @@ export default {
           let tagName = ele.ele.tagName.toLowerCase();
           if (tagName === 'input' || tagName === 'textarea' || tagName === 'img' || tagName === 'svg') {
             let parent = ele.parent();
-            if (parent && parent.ele.tagName.toLowerCase() === 'span' && !_.isUndefined($(parent.ele).attr('sa-click-area'))) {
+            if (parent && parent.ele.tagName.toLowerCase() === 'span' && !this.$zd._.isUndefined($(parent.ele).attr('sa-click-area'))) {
               $(ele.ele).unwrap();
             }
           } else {
@@ -784,9 +702,9 @@ export default {
         };
         try {
           let windowNameParam = {};
-          if (_.isJSONString(window.name)) {
+          if (this.$zd._.isJSONString(window.name)) {
             windowNameParam = JSON.parse(window.name);
-            window.name = JSON.stringify(_.extend(windowNameParam, obj));
+            window.name = JSON.stringify(this.$zd._.extend(windowNameParam, obj));
           } else if (window.name == '') {
             window.name = JSON.stringify(obj);
           }

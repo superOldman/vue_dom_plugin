@@ -1,8 +1,8 @@
 import Vue from 'vue'
-import { Button, Select,Option, Popover } from 'element-ui';
+import { Button, Select, Option, Popover } from 'element-ui';
 // import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import testDom from './toolDom/testDom.vue'
+import toolbar from './toolDom/toolbar.vue'
 // Vue.use(ElementUI)
 Vue.use(Button)
 Vue.use(Popover)
@@ -14,9 +14,12 @@ import heatmap from './toolDom/heatmap'
 
 
 window.sa_jssdk_heatmap_render = function (se, data, type, url) {
-  window.sd = se;
-  sd.heatmap_version = '1.24.2' // '1.23.5';
-  window._ = sd._;
+  const _ = se._
+  const sd = se
+
+  Vue.prototype.$zd = heatmap.$zd = sd
+  Vue.prototype.$zd.heatmap_version = '1.24.2'
+
   _.querySelectorAll = function (val) {
     if (typeof val !== 'string') {
       sd.log('选择器错误', val);
@@ -45,7 +48,7 @@ window.sa_jssdk_heatmap_render = function (se, data, type, url) {
     const rootDiv = document.createElement('div')
     document.body.appendChild(rootDiv)
     new Vue({
-      render: h => h(testDom),
+      render: h => h(toolbar),
       // shadowRoot: shadowRootDom
     }).$mount(rootDiv)
   });
