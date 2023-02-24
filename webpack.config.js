@@ -60,7 +60,7 @@ module.exports = {
                         presets: ['@babel/preset-env'],
                         plugins: [
                             'syntax-dynamic-import',
-                            ["component", 
+                            ["component",
                                 {
                                     "libraryName": "element-ui",
                                     "styleLibraryName": "theme-chalk"

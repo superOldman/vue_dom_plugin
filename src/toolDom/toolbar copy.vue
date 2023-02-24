@@ -3,13 +3,13 @@
     <div class="toolbar">
       <div style="height:39px;line-height:39px;padding:3px 15px 9px">
         <el-select class="menu-type" v-model="chartType" @change="setHeatState" style="width:100px;" title="选择查看类型">
-          <el-option label="点击图1" :value="1"></el-option>
-          <el-option label="触达率图" :value="2"></el-option>
+          <el-option label="点击图1" value="1"></el-option>
+          <el-option label="触达率图" value="2"></el-option>
         </el-select>
 
-        <el-select class="menu-type" v-if="chartType==1" v-model="heatMode" @change="changeHeatData" style="width:90px;" title="切换点击图方案">
-          <el-option label="方案一" :value="1"></el-option>
-          <el-option label="方案二" :value="2"></el-option>
+        <el-select class="menu-type" v-if="chartType==1" v-model="heatMode" @change="chooseHeatData" style="width:90px;" title="切换点击图方案">
+          <el-option label="方案一" value="1"></el-option>
+          <el-option label="方案二" value="2"></el-option>
         </el-select>
 
         <div id="sa_sdk_heatmap_toolbar_close" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="收起打开">
@@ -42,13 +42,13 @@
         <el-popover placement="top-start" width="260" trigger="manual" v-model="showQR">
           <div style="height:24px;line-height:24px;border-bottom:1px solid #E9F0F7;text-align:center;color:#475669;font-size:14px;position:relative;">
             分享链接
-            <close @click.native="showQR=false" style="position:absolute;top:2px;color:#99A9BF;cursor:pointer;right:4px" />
+            <close @click.native="showQR=false" title="分享链接" style="position:absolute;top:2px;color:#99A9BF;cursor:pointer;right:4px" />
           </div>
           <div class="the-qr" style="width:128px;height:128px;margin: 16px auto;"></div>
           <share slot="reference" class="hand" style="float:right;position:relative;width:16px;top: 10px;cursor:pointer" title="打开分享" @click.native="lookView" />
         </el-popover>
 
-        <div id="sa_sdk_heatmap_toolbar_filter" style="float:right;position:relative;cursor:pointer;width:30px;height:100%;" title="筛选">
+        <!-- <div id="sa_sdk_heatmap_toolbar_filter" style="float:right;position:relative;cursor:pointer;width:30px;height:100%;" title="筛选">
           <svg style="position: absolute; top: 11px; left: 5px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="17px" height="15px" viewBox="0 0 17 15"
             version="1.1">
             <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -90,8 +90,8 @@ export default {
       showQR: false,
       selectShow: false,
       selectClickShow: false,
-      chartType: 1,
-      heatMode: 1,
+      chartType: '1',
+      heatMode: '1',
       originalHeatData: null,
       ajaxHeatData: null,
       heatDataElement: [],
@@ -102,19 +102,17 @@ export default {
         dom: null
       },
       referenceData: {},
-      referenceList: [],
-
-      offScrollAndResizeEventHandle: null
+      referenceList: []
     }
   },
   created() {
     // this.setHeatState()
     this.setHeatState(this.getQueryString('sa-request-id'), '1', window.location.href, true);
+    // this.addScrollAndResizeEvent()
   },
   mounted() {
     console.log(this.getQueryString('id'));
-    this.heatMode = this.getQueryString('sa-request-type') || 1
-    // this.getCurrentUrl()
+    this.heatMode = this.getQueryString('sa-request-type') || '1'
     // 二维码
     this.$nextTick(() => {
       let qrCodeEle = document.querySelector('.the-qr')
@@ -133,16 +131,6 @@ export default {
   methods: {
     afterLeave() {
       this.reference.show = false
-
-
-      // let self = this
-      // if(this.referenceList.length){
-      //   setTimeout(e=>{
-      //     self.reference.show = true
-      //     self.reference.dom = self.referenceList[self.referenceList.length-1]
-      //     self.referenceList = []
-      //   },1000)
-      // }
     },
     getCurrentUrl() {
       let href = urlParse(location.href);
@@ -638,56 +626,22 @@ export default {
       $('[sa-click-area-v2]').removeAttr('sa-click-area-v2');
       $('#heatMapContainer').html('');
     },
-
-    changeHeatData() {
+    chooseHeatData() {
       if (this.heatMode == 2) {
         this.clearMode1()
-        this.offScrollAndResizeEventHandle = this.addScrollAndResizeEvent()
-
       }
       if (this.heatMode == 1) {
         this.clearMode2()
       }
-
       this.calculateHeatData(this.ajaxHeatData);
     },
     refreshHeatData: function (targetVersion) {
       if (this.heatMode == 1) {
-
-        this.heatDataElement.forEach(ele => {
-          let tagName = ele.ele.tagName.toLowerCase();
-          if (tagName === 'input' || tagName === 'textarea' || tagName === 'img' || tagName === 'svg') {
-            let parent = ele.parent();
-            if (parent && parent.ele.tagName.toLowerCase() === 'span' && !this.$zd._.isUndefined($(parent.ele).attr('sa-click-area'))) {
-              $(ele.ele).unwrap();
-            }
-          } else {
-            $(ele.ele).removeAttr('sa-click-area');
-          }
-        })
-
-
-        $('[sa-heatmap-inlineBlock]').css('display', 'inline');
-        $('[sa-heatmap-inlineBlock]').removeAttr('sa-heatmap-inlineBlock');
-        this.heatDataElement = [];
+        this.clearMode1()
       }
       if (this.heatMode == 2) {
-        this.heatDataElement = [];
-        $('[sa-click-area-v2]').removeAttr('sa-click-area-v2');
-        $('#heatMapContainer').html('');
-
+        this.clearMode2()
       }
-
-      // if (this.offScrollAndResizeEventHandle) {
-      //   this.offScrollAndResizeEventHandle();
-      //   this.offScrollAndResizeEventHandle = null;
-      // }
-      // if (state === '1') {
-      //   heatmap_render.refreshHeatData(1);
-      // } else if (state === '2') {
-      //   heatmap_render.refreshHeatData(2);
-      //   this.offScrollAndResizeEventHandle = addScrollAndResizeEvent();
-      // }
       this.calculateHeatData(this.ajaxHeatData);
     },
     setNoticeMap: function () { },
@@ -724,6 +678,7 @@ export default {
       this.selectClickShow = false
     },
     setHeatState: function (data, type, url, isFirst) {
+
       if (isFirst) {
         if (type === '1') {
           this.setClickMap(data, url)
@@ -734,12 +689,8 @@ export default {
         }
       } else {
         let href = urlParse(location.href);
-        if (!data) {
-          return false;
-        }
-        if (!type) {
-          type = 1;
-        }
+
+
         let obj = {
           'sa-request-id': data,
           'sa-request-type': type,
@@ -758,8 +709,8 @@ export default {
           href.addQueryString(obj);
           location.href = href.getUrl();
         } else {
-          sessionStorage && sessionStorage.setItem && sessionStorage.setItem('sensors_heatmap_type', type);
-          location.reload();
+          sessionStorage && sessionStorage.setItem && sessionStorage.setItem('sensors_heatmap_type', this.chartType);
+          // location.reload();
         }
       }
     },
