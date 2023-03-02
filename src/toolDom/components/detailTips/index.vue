@@ -1,5 +1,5 @@
 <template>
-  <el-popover v-if="reference.show" popper-class="popper-style" placement="top-start" width="200" trigger="hover" :visible-arrow="false" @hide="hide" @after-leave="handleAfterLeave" :reference="reference.dom">
+  <el-popover v-if="reference.show" z-index="999999" popper-class="popper-style" placement="top-start" width="200" trigger="hover"  :visible-arrow="false" @hide="hide" @after-leave="handleAfterLeave" :reference="reference.dom">
     <div style="padding: 8px;">
       <div style="color: #CACACA">当前内容</div>
       <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{data.data_current_content}}</div>
@@ -50,11 +50,11 @@
         </tr>
       </table>
     </div>
-    <div style="background: #444; height:1px;"></div>
+    <!-- <div style="background: #444; height:1px;"></div>
     <div style="padding: 8px;">
       <div style="color: #CACACA;">历史内容：</div>
       <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{data.data_top_value}}</div>
-    </div>
+    </div> -->
     <!-- <div style="background: #444; height:1px;"></div>
     <div style="padding: 6px 8px;"><a style="color:#2a90e2;text-decoration: none;" :href="data.data_user_link" target="_blank">查看用户列表</a></div> -->
 

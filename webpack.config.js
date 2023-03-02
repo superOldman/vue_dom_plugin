@@ -32,7 +32,8 @@ module.exports = {
         }
     },
     output: {
-        filename: '[name].js',
+        // filename: '[name].js',
+        filename: 'heatmap.js',
         publicPath: '/'
     },
     module: {
@@ -127,9 +128,9 @@ module.exports = {
         ]
     },
     plugins: [
-        // new webpack.DefinePlugin({
-        //     'process.env': env
-        // }),
+        new webpack.DefinePlugin({
+            'process.env': 'development'
+        }),
         // 请确保引入这个插件！
         new VueLoaderPlugin()
     ],

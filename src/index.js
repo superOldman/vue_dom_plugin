@@ -19,7 +19,7 @@ window.sa_jssdk_heatmap_render = function (se, data, type, url) {
 
   Vue.prototype.$zd = heatmap.$zd = sd
   Vue.prototype.$zd.heatmap_version = '1.24.2'
-
+  Vue.prototype.$ELEMENT = { size: 'small', zIndex: 999999 };
   _.querySelectorAll = function (val) {
     if (typeof val !== 'string') {
       sd.log('选择器错误', val);

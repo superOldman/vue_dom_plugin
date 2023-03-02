@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.js",
     "build2": "cross-env env_config=pre node build.js",
-    "serve": "yarn build && webpack-dev-server --config webpack.config.js"
+    "serve": "yarn build && webpack-dev-server --config webpack.config.js",
+    "serve2": "cross-env env_config=pre webpack-dev-server --config webpack.config.js"
   },
   "devDependencies": {
     "@babel/core": "^7.18.5",

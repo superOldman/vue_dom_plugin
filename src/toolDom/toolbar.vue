@@ -1,18 +1,18 @@
 <template>
   <div>
-    <div class="toolbar">
+    <div class="toolbar" v-show="toolbarShow">
       <div style="height:39px;line-height:39px;padding:3px 15px 9px">
         <el-select class="menu-type" v-model="chartType" @change="setHeatState" style="width:100px;" title="选择查看类型">
-          <el-option label="点击图1" :value="1"></el-option>
-          <el-option label="触达率图" :value="2"></el-option>
+          <el-option label="点击图" value="1"></el-option>
+          <el-option label="触达率图" value="2"></el-option>
         </el-select>
 
         <el-select class="menu-type" v-if="chartType==1" v-model="heatMode" @change="changeHeatData" style="width:90px;" title="切换点击图方案">
-          <el-option label="方案一" :value="1"></el-option>
-          <el-option label="方案二" :value="2"></el-option>
+          <el-option label="方案一" value="1"></el-option>
+          <el-option label="方案二" value="2"></el-option>
         </el-select>
 
-        <div id="sa_sdk_heatmap_toolbar_close" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="收起打开">
+        <div id="sa_sdk_heatmap_toolbar_close" style="float:right;position:relative;width:30px;height:100%;cursor:pointer" title="收起打开" @click="pickupPane">
           <svg style="position:absolute;top:9px;right:0" width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
               <g transform="translate(-129.000000, -260.000000)" fill-rule="nonzero" fill="#99A9BF">
@@ -23,7 +23,7 @@
         </div>
 
         <div style="float:right;padding:0 10px;width:1px;color:#99A9BF">|</div>
-        <div id="sa_sdk_heatmap_toolbar_refresh" style="float:right;position:relative;cursor:pointer;width:30px;height:100%" title="刷新数据">
+        <div id="sa_sdk_heatmap_toolbar_refresh" style="float:right;position:relative;cursor:pointer;width:30px;height:100%" title="刷新数据" @click="refreshData">
           <svg style="position:absolute;top:9px;left:5px" width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
               <g>
@@ -47,28 +47,27 @@
           <div class="the-qr" style="width:128px;height:128px;margin: 16px auto;"></div>
           <share slot="reference" class="hand" style="float:right;position:relative;width:16px;top: 10px;cursor:pointer" title="打开分享" @click.native="lookView" />
         </el-popover>
-
-        <div id="sa_sdk_heatmap_toolbar_filter" style="float:right;position:relative;cursor:pointer;width:30px;height:100%;" title="筛选">
-          <svg style="position: absolute; top: 11px; left: 5px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="17px" height="15px" viewBox="0 0 17 15"
-            version="1.1">
-            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-              <g id="操作栏" transform="translate(-1068.000000, -341.000000)" fill="#99A9BF" fill-rule="nonzero">
-                <g id="screen" transform="translate(1068.000000, 341.000000)">
-                  <polygon id="路径"
-                    points="9.13824444 13.2863778 9.13824444 6.65411111 12.5159778 2.08801111 4.52081111 2.08801111 7.8378 6.56684444 7.8378 12.6447111 6.23534444 11.8541778 6.23534444 7.20851111 0.8 0.4 16.2 0.4 10.7646556 7.2299 10.7646556 14.0888889 9.13824444 13.2863778" />
-                </g>
-              </g>
-            </g>
-          </svg>
-        </div> -->
       </div>
-      <detailTips :reference="reference" :data="referenceData" @afterLeave="afterLeave" />
+      <detailTips :key="detailTipsKey" :reference="reference" :data="referenceData" @afterLeave="afterLeave" />
     </div>
+
+    <div id="sa_sdk_heatmap_toolbar_corner" v-show="!toolbarShow" @click="expandPane" style="cursor:pointer;position: fixed;z-index:999999;top:0;right:10px;padding:3px 8px 0;background:#000;">
+      <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <g transform="translate(-360.000000, -119.000000)" fill-rule="nonzero" fill="#C0CCDA">
+            <polygon transform="translate(370.365000, 129.117652) scale(1, -1) translate(-370.365000, -129.117652) "
+              points="364.4177 133.235303 363 131.905316 370.360724 125 377.73 131.905317 376.312279 133.235302 370.364999 127.655981"></polygon>
+          </g>
+        </g>
+      </svg>
+    </div>
+
   </div>
 </template>
 
 <script>
 import heatmap from '@/toolDom/heatmap'
+import { $ } from '@/toolDom/jq'
 import urlParse from '@/toolDom/urlParse'
 import QRCode from './QRcode'
 import Clickoutside from 'element-ui/src/utils/clickoutside'
@@ -87,11 +86,12 @@ export default {
   directives: { Clickoutside },
   data() {
     return {
+      toolbarShow: true,
       showQR: false,
       selectShow: false,
       selectClickShow: false,
-      chartType: 1,
-      heatMode: 1,
+      chartType: '1',
+      heatMode: '1',
       originalHeatData: null,
       ajaxHeatData: null,
       heatDataElement: [],
@@ -101,20 +101,17 @@ export default {
         show: false,
         dom: null
       },
+      detailTipsKey: 0,
       referenceData: {},
       referenceList: [],
-
       offScrollAndResizeEventHandle: null
     }
   },
   created() {
-    // this.setHeatState()
-    this.setHeatState(this.getQueryString('sa-request-id'), '1', window.location.href, true);
+    this.setHeatState(this.getQueryString('sa-request-type'), true)
   },
   mounted() {
-    console.log(this.getQueryString('id'));
-    this.heatMode = this.getQueryString('sa-request-type') || 1
-    // this.getCurrentUrl()
+    this.chartType = this.getQueryString('sa-request-type') || '1'
     // 二维码
     this.$nextTick(() => {
       let qrCodeEle = document.querySelector('.the-qr')
@@ -133,8 +130,6 @@ export default {
   methods: {
     afterLeave() {
       this.reference.show = false
-
-
       // let self = this
       // if(this.referenceList.length){
       //   setTimeout(e=>{
@@ -143,22 +138,6 @@ export default {
       //     self.referenceList = []
       //   },1000)
       // }
-    },
-    getCurrentUrl() {
-      let href = urlParse(location.href);
-      let obj = {};
-
-      obj['sa-request-url'] = sessionStorage.getItem('sensors_heatmap_url');
-      obj['sa-request-url'] = obj['sa-request-url'] ? encodeURIComponent(obj['sa-request-url']) : '';
-      obj['sa-request-id'] = sessionStorage.getItem('sensors_heatmap_id');
-      obj['sa-request-type'] = sessionStorage.getItem('sensors_heatmap_type') || '1';
-      $.each(obj, function (a, b) {
-        if (!b) {
-          delete obj[a];
-        }
-      });
-      href.addQueryString(obj);
-      return href.getUrl();
     },
 
     bindEffect() {
@@ -230,17 +209,12 @@ export default {
 
       this.referenceData = data
       if (this.reference.show) {
-        console.log('mouseover-准备show');
-        setTimeout(() => {
-          console.log('mouseover-准备show好了');
-          this.reference.show = true
-          this.reference.dom = target
-        }, 200)
-      } else {
-        console.log('mouseover-show');
-        this.reference.show = true
-        this.reference.dom = target
+        this.detailTipsKey++
       }
+
+      this.reference.show = true
+      this.reference.dom = target
+
     },
 
     addScrollAndResizeEvent() {
@@ -282,7 +256,7 @@ export default {
 
     setClickMap(id, url) {
       let me = this;
-      if (typeof id === 'string' && this.$zd.para.web_url) {
+      if (typeof id === 'string') {
 
         $('body').append('<div id="heatMapContainer"></div>');
 
@@ -291,74 +265,28 @@ export default {
         } else {
           this.requestType = 1;
         }
-        let test = {
-          "error_msg": "OK", "is_success": true,
-          "data": { "heat_map_id": "193b91c8-dc03-4bd7-a041-3f7e0d6a0c94", "by_fields": ["event.$WebClick.$element_selector"], "rows": [{ "top_values": [""], "values": [[3]], "by_values": ["#c-name"] }, { "top_values": [""], "values": [[6]], "by_values": ["#container \u003e footer:nth-of-type(1) \u003e div:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[3]], "by_values": ["#country"] }, { "top_values": ["Save"], "values": [[1]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e form:nth-of-type(1) \u003e div:nth-of-type(7) \u003e div:nth-of-type(1) \u003e button:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#email"] }, { "top_values": ["UI Elements"], "values": [[1]], "by_values": ["#nav-accordion \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Forms"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(5) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#phone"] }, { "top_values": [""], "values": [[1]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e button:nth-of-type(2)"] }, { "top_values": [""], "values": [[3]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e form:nth-of-type(1) \u003e div:nth-of-type(5) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": ["Overview"], "values": [[5]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": ["Contact"], "values": [[11]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Edit Profile"], "values": [[7]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": ["Extra Pages"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(4) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[2]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e button:nth-of-type(1)"] }, { "top_values": ["Components"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": ["Mail 2"], "values": [[1]], "by_values": ["#nav-accordion \u003e li:nth-of-type(7) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[6]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": [""], "values": [[2]], "by_values": ["#skype"] }, { "top_values": [""], "values": [[2]], "by_values": ["#lives-in"] }], "page_view": 22, "report_update_time": "2023-02-20 09:54:31.932", "data_update_time": "2023-02-20 09:50:08.000", "data_sufficient_update_time": "2023-02-20 09:43:40.000", "truncated": false, "sampling_factor": 64 }
-        }
-        // let test = {
-        //   "error_msg": "OK", "is_success": true,
-        //   "data": {
-        //     "heat_map_id": "d88e6ff5-b63f-4a7c-ba51-b4292277ec71", "by_fields": ["event.$WebClick.$element_selector"],
-        //     "rows": [{ "top_values": [""], "values": [[1]], "by_values": ["#exampleInputFile"] }, { "top_values": [""], "values": [[5]], "by_values": ["#c-name"] }, { "top_values": [""], "values": [[4]], "by_values": ["#container \u003e footer:nth-of-type(1) \u003e div:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e form:nth-of-type(1) \u003e div:nth-of-type(5) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": ["Send Message"], "values": [[1]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e p:nth-of-type(2) \u003e button:nth-of-type(1)"] }, { "top_values": ["Overview"], "values": [[7]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": ["Contact"], "values": [[7]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Edit Profile"], "values": [[4]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#lives-in"] }, { "top_values": [""], "values": [[1]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }], "page_view": 4, "report_update_time": "2023-02-14 20:32:34.189", "data_update_time": "2023-02-14 20:31:49.000", "data_sufficient_update_time": "2023-02-14 20:19:49.000", "truncated": false, "sampling_factor": 64
-        //   }
-        // }
-        console.log('插件加载完毕');
-        // 处理 热力框部分数据
-        me.originalHeatData = me.processOriginalHeatData(test.data);
-        // 加载热力框dom
-        // me.bindEffect();
-        me.bindEffect();
-        // 计算热力数据
-        me.calculateHeatData(test.data);
 
+        let BASE_API = 'https://preapiconsole.71360.com/api/app/cdp-analysis/'
+        // process.env === 'development' ? BASE_API = 'http://192.168.26.106:8888/' : BASE_API = 'https://preapiconsole.71360.com/api/app/obor-nginx-php-ydyl/'
         heatmap.getServerData.start({
           url: {
-            ajax: 'http://192.168.26.106:8888/heatMapPage/clickGraph?heatMapId=123123',
-            jsonp: 'http://192.168.26.106:8888/heatMapPage/clickGraph?heatMapId=123123'
+            ajax: BASE_API + 'heatMapPage/clickGraph?heatMapId=' + id,
+            jsonp: BASE_API + 'heatMapPage/clickGraph?heatMapId=' + id
           },
           success: function (data) {
             console.log('success', data);
+            // 处理 热力框部分数据
+            me.originalHeatData = me.processOriginalHeatData(data);
+            // 加载热力框dom
+            me.bindEffect();
+            // 计算热力数据
+            me.calculateHeatData(data);
+
           },
           error: function (res) {
             console.log('error', res);
           }
-        });
-
-
-        // heatmap.getServerData.start({
-        //   url: {
-        //     ajax: this.requestType === 3 ? urlParse2Value : urlParse.getUrl(),
-        //     jsonp: this.requestType === 3 ? jsonpUrlParse2Value : jsonpUrlParse.getUrl()
-        //   },
-        //   success: function (data) {
-        //     // 假数据
-
-        //     let test = {
-        //       "error_msg": "OK", "is_success": true,
-        //       "data": { "heat_map_id": "193b91c8-dc03-4bd7-a041-3f7e0d6a0c94", "by_fields": ["event.$WebClick.$element_selector"], "rows": [{ "top_values": [""], "values": [[3]], "by_values": ["#c-name"] }, { "top_values": [""], "values": [[6]], "by_values": ["#container \u003e footer:nth-of-type(1) \u003e div:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[3]], "by_values": ["#country"] }, { "top_values": ["Save"], "values": [[1]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e form:nth-of-type(1) \u003e div:nth-of-type(7) \u003e div:nth-of-type(1) \u003e button:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#email"] }, { "top_values": ["UI Elements"], "values": [[1]], "by_values": ["#nav-accordion \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Forms"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(5) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#phone"] }, { "top_values": [""], "values": [[1]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e button:nth-of-type(2)"] }, { "top_values": [""], "values": [[3]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e form:nth-of-type(1) \u003e div:nth-of-type(5) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": ["Overview"], "values": [[5]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": ["Contact"], "values": [[11]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Edit Profile"], "values": [[7]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": ["Extra Pages"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(4) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[2]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e button:nth-of-type(1)"] }, { "top_values": ["Components"], "values": [[2]], "by_values": ["#nav-accordion \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": ["Mail 2"], "values": [[1]], "by_values": ["#nav-accordion \u003e li:nth-of-type(7) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[6]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": [""], "values": [[2]], "by_values": ["#skype"] }, { "top_values": [""], "values": [[2]], "by_values": ["#lives-in"] }], "page_view": 22, "report_update_time": "2023-02-20 09:54:31.932", "data_update_time": "2023-02-20 09:50:08.000", "data_sufficient_update_time": "2023-02-20 09:43:40.000", "truncated": false, "sampling_factor": 64 }
-        //     }
-        //     // let test = {
-        //     //   "error_msg": "OK", "is_success": true,
-        //     //   "data": {
-        //     //     "heat_map_id": "d88e6ff5-b63f-4a7c-ba51-b4292277ec71", "by_fields": ["event.$WebClick.$element_selector"],
-        //     //     "rows": [{ "top_values": [""], "values": [[1]], "by_values": ["#exampleInputFile"] }, { "top_values": [""], "values": [[5]], "by_values": ["#c-name"] }, { "top_values": [""], "values": [[4]], "by_values": ["#container \u003e footer:nth-of-type(1) \u003e div:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#edit \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e form:nth-of-type(1) \u003e div:nth-of-type(5) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }, { "top_values": ["Send Message"], "values": [[1]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e p:nth-of-type(2) \u003e button:nth-of-type(1)"] }, { "top_values": ["Overview"], "values": [[7]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(1) \u003e a:nth-of-type(1)"] }, { "top_values": ["Contact"], "values": [[7]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(2) \u003e a:nth-of-type(1)"] }, { "top_values": ["Edit Profile"], "values": [[4]], "by_values": ["#main-content \u003e section:nth-of-type(1) \u003e div:nth-of-type(1) \u003e div:nth-of-type(2) \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e ul:nth-of-type(1) \u003e li:nth-of-type(3) \u003e a:nth-of-type(1)"] }, { "top_values": [""], "values": [[1]], "by_values": ["#lives-in"] }, { "top_values": [""], "values": [[1]], "by_values": ["#overview \u003e div:nth-of-type(1) \u003e div:nth-of-type(1) \u003e textarea:nth-of-type(1)"] }], "page_view": 4, "report_update_time": "2023-02-14 20:32:34.189", "data_update_time": "2023-02-14 20:31:49.000", "data_sufficient_update_time": "2023-02-14 20:19:49.000", "truncated": false, "sampling_factor": 64
-        //     //   }
-        //     // }
-        //     console.log('插件加载完毕');
-        //     // 处理 热力框部分数据
-        //     me.originalHeatData = me.processOriginalHeatData(test.data);
-        //     // 加载热力框dom
-        //     me.bindEffect();
-        //     // 计算热力数据
-        //     me.calculateHeatData(test.data);
-        //   },
-        //   error: function (res) {
-        //     me.showErrorInfo(2, res);
-        //     sessionStorage.removeItem('sensors_heatmap_id');
-        //   }
-        // });
-      } else {
-        this.$zd.log('缺少web_url');
+        })
       }
     },
 
@@ -395,11 +323,11 @@ export default {
     },
 
     processOriginalHeatData: function (data) {
-      let result = $.extend(true, {}, data);
+      let result = Object.assign({}, data)
 
       result.rows.forEach((index, value) => {
         try {
-          let ele = this.$zd._.querySelectorAll(value.by_values[0]);
+          let ele = this.$zd._.querySelectorAll(value.byValues[0]);
           if (ele.length) {
             value.ele = ele[0];
           }
@@ -411,16 +339,16 @@ export default {
     },
     processOriginalHeatData2: function () {
       let data = this.originalHeatData;
-      let result = $.extend(true, {}, data);
+      let result = Object.assign({}, data)
       let tmp = [];
       let eletmp = [];
       let copyRows = data.rows.slice();
       copyRows.forEach((index, value) => {
         if (!value.ele) return true;
-        let idx = $.inArray(value.ele, eletmp);
+        let idx = eletmp.findIndex(e => e === value.ele);
         if (idx === -1) {
           eletmp.push(value.ele);
-          tmp.push($.extend(true, {}, value));
+          tmp.push(Object.assign({}, data));
         } else {
           tmp[idx].values[0][0] += value.values[0][0];
         }
@@ -431,7 +359,7 @@ export default {
 
     //  计算热力属性
     calculateHeatData: function (data) {
-      data = $.extend(true, {}, data);
+      data = Object.assign({}, data);
       this.ajaxHeatData = data;
       let me = this;
 
@@ -439,13 +367,13 @@ export default {
         me.showErrorInfo(me.requestType);
         return false;
       }
-      if (!data.page_view || Number(data.page_view) === 0) {
+      if (!data.viewCount || Number(data.viewCount) === 0) {
         me.showErrorInfo(2, {
           error: '点击率计算失败，没有开启autoTrack!'
         });
         return false;
       }
-      let pv = parseInt(data.page_view, 10);
+      let pv = parseInt(data.viewCount, 10);
       let heat_map_id = data.heat_map_id;
       data = data.rows;
 
@@ -456,7 +384,7 @@ export default {
 
       data.forEach(obj => {
         let elem = null;
-        if (obj.by_values[0] && (elem = this.$zd._.querySelectorAll(obj.by_values[0])[0])) {
+        if (obj.byValues[0] && (elem = this.$zd._.querySelectorAll(obj.byValues[0])[0])) {
           templeUsableData.push(obj);
           usableElem.push(elem);
         }
@@ -468,7 +396,7 @@ export default {
             if (usableElem[i] === usableElem[j]) {
               templeUsableData[j].values[0][0] += templeUsableData[i].values[0][0];
               templeUsableData[i].values[0][0] = 0;
-              templeUsableData[i].by_values = '';
+              templeUsableData[i].byValues = '';
               break;
             }
           }
@@ -476,7 +404,7 @@ export default {
       }
 
       templeUsableData.forEach(obj => {
-        if (obj.by_values[0] && this.$zd._.querySelectorAll(obj.by_values[0])[0]) {
+        if (obj.byValues[0] && this.$zd._.querySelectorAll(obj.byValues[0])[0]) {
           usableData.push(obj);
         }
       });
@@ -490,7 +418,7 @@ export default {
       data = usableData;
 
       data.forEach(obj => {
-        obj.value_fix = obj.values[0][0];
+        obj.value_fix = obj.clickCount[0][0];
         dataPageTotal += obj.value_fix;
       });
 
@@ -498,7 +426,7 @@ export default {
       me.data_render = data;
 
       data.forEach((obj, key) => {
-        if (obj.by_values[0]) {
+        if (obj.byValues[0]) {
           obj.data_page_percent = Number((obj.value_fix / dataPageTotal) * 100).toFixed(2) + '%';
 
           obj.data_click_percent = Number((obj.value_fix / pv) * 100).toFixed(2) + '%';
@@ -509,17 +437,17 @@ export default {
           let urlParse = new this.$zd._.urlParse(this.$zd.para.web_url);
           urlParse._values.Path = '/web-click/users';
           if (me.requestType === 3) {
-            obj.data_user_link = urlParse.getUrl() + '#heat_map_id=' + heat_map_id + '&detail=true&element_selector=' + encodeURIComponent(obj.by_values[0]) + '&page_url=' + encodeURIComponent(location.href);
+            obj.data_user_link = urlParse.getUrl() + '#heat_map_id=' + heat_map_id + '&detail=true&element_selector=' + encodeURIComponent(obj.byValues[0]) + '&page_url=' + encodeURIComponent(location.href);
           } else {
-            obj.data_user_link = urlParse.getUrl() + '#heat_map_id=' + heat_map_id + '&detail=true&element_selector=' + encodeURIComponent(obj.by_values[0]);
+            obj.data_user_link = urlParse.getUrl() + '#heat_map_id=' + heat_map_id + '&detail=true&element_selector=' + encodeURIComponent(obj.byValues[0]);
           }
-          if (String(obj.top_values[0]) === 'null') {
+          if (String(obj.topValues[0]) === 'null') {
             obj.data_top_value = '没有值';
           } else {
-            obj.data_top_value = String(obj.top_values[0]);
+            obj.data_top_value = String(obj.topValues[0]);
           }
 
-          let selector = this.$zd._.querySelectorAll(obj.by_values[0]);
+          let selector = this.$zd._.querySelectorAll(obj.byValues[0]);
           if (typeof selector === 'object' && selector.length > 0) {
             setTimeout(function () {
               me.renderHeatData(selector, obj, key);
@@ -552,13 +480,13 @@ export default {
           wrap = dom;
         }
         this.heatDataElement.push(dom);
-        $(wrap.ele).data('clickdata', $.extend(true, {}, data));
+        $(wrap.ele).data('clickdata', Object.assign({}, data));
         wrap.attr('data-heat-place', String(key)).attr('sa-click-area', this.heatData(data.data_click)).attr('data-click', data.data_click_percent);
         if (wrap.getStyle('display') === 'inline') {
           selector[0].style.display = 'inline-block';
           $(selector[0]).attr('sa-heatmap-inlineBlock', '');
         }
-      } else if (this.heatMode === 2) {
+      } else if (this.heatMode == 2) {
         let eleWidth, eleHeight, eleLeft, eleTop;
         if ($(selector[0]).is(':visible') && String($(selector[0]).css('opacity')) !== '0') {
           if (tagName === 'a') {
@@ -590,7 +518,7 @@ export default {
           }
 
           $(dom.ele).attr('sa-click-area-v2', '');
-          $(dom.ele).data('clickdata', $.extend(true, {}, data));
+          $(dom.ele).data('clickdata', Object.assign({}, data));
           if (eleHeight && eleWidth) {
             let mapDivObj = {
               width: eleWidth,
@@ -723,7 +651,136 @@ export default {
     handleClose() {
       this.selectClickShow = false
     },
-    setHeatState: function (data, type, url, isFirst) {
+    setScrollMap: function (id, url) {
+      let me = this;
+      if (typeof id === 'string') {
+
+        let suc = function (data) {
+          if (typeof data !== 'object' || !me.$zd._.isArray(data.result) || data.result.length === 0) {
+            me.showErrorInfo(2, {
+              error: '未取到数据'
+            });
+            return false;
+          }
+
+          data.detail = data.result || [];
+
+          if (!data.total || data.total === 0 || typeof data.total !== 'number' || data.total < 2) {
+            me.showErrorInfo(2, {
+              error: '有效的触发用户数少于2人'
+            });
+            return false;
+          }
+          data.origin_total = data.total;
+          data.total = data.result[0];
+
+          data.percent = {};
+
+          let middlePercent = {
+            setData: function (x, y, z) {
+              x = String(x);
+              this.data[x] = this.data[x] || {};
+              this.data[x][y] = z;
+            },
+            data: {},
+            getData: function () {
+              let x = {};
+              let arr = [];
+              let temp = null;
+              for (let i in this.data) {
+                arr = [];
+                for (let k in this.data[i]) {
+                  arr.push([k, this.data[i][k]]);
+                }
+                this.data[i] = arr;
+                temp = this.data[i].sort(function (a, b) {
+                  return Math.abs(a[0] - Number(i)) - Math.abs(b[0] - Number(i));
+                })[0];
+                x[temp[0]] = temp[1];
+              }
+              return x;
+            }
+          };
+          me.$zd._.each(data.result, function (v, k) {
+            if (v / data.total == 1) {
+              data.percent['100'] = (k + 1) * 10;
+            } else if (v / data.total > 0.7 && v / data.total < 0.8) {
+              middlePercent.setData(75, parseInt((v / data.total) * 100), (k + 1) * 10);
+            } else if (v / data.total > 0.45 && v / data.total < 0.55) {
+              middlePercent.setData(50, parseInt((v / data.total) * 100), (k + 1) * 10);
+            } else if (v / data.total > 0.2 && v / data.total < 0.3) {
+              middlePercent.setData(25, parseInt((v / data.total) * 100), (k + 1) * 10);
+            }
+          });
+
+          me.$zd._.extend(data.percent, middlePercent.getData());
+
+          let percent_tpl = `<div style="border-bottom: 1px dashed #4C4C4D;height:1px;width:100%;position: absolute;top:{{top}}px;">
+            <span style="font-size:12px;position:absolute;padding:0 12px;top:-24px;height:26px;line-height: 26px;left:0;background:#000;color:#eee;border-radius: 2px;">
+            {{percent}}</span></div>`;
+          for (let i in data.percent) {
+            $(document.body).append($(percent_tpl.replace('{{top}}', data.percent[i] - 2).replace('{{percent}}', i + '%')));
+          }
+
+          let over_tpl = `<div style="z-index:99999;border-bottom: 1px solid #272727;height:1px;
+            width:100%;position: absolute;top:{{top}}px;text-align:center;">
+            <span style="font-size:12px;height:26px;line-height: 26px;background:#000;color:#eee;border-radius: 2px;left:50%;margin-left:-65px;
+            position: absolute;top:-13px;padding: 0 5px;">{{percent}}的用户浏览到这里</span></div>`;
+          let over_ele = null;
+
+          function showLineDetail(e) {
+            let y = parseInt((e.pageY + 15) / 10);
+            let i = 0;
+            if (y <= data.detail.length && data.detail[y]) {
+              i = Math.floor((data.detail[y] / data.total) * 100 * 100) / 100;
+            } else {
+              i = 0;
+            }
+            if (over_ele) {
+              over_ele.remove();
+            }
+            over_ele = $(over_tpl.replace('{{top}}', e.pageY + 15).replace('{{percent}}', i + '%'));
+            $(document.body).append(over_ele);
+          }
+
+          $(document).on('mousemove', me.$zd._.throttle(showLineDetail, 150));
+        }
+        let err = function (res) {
+          if (me.$zd._.isObject(res) && res.error) {
+            me.showErrorInfo(2, {
+              error: res.error
+            });
+          } else {
+            me.showErrorInfo(2, {
+              error: '服务异常'
+            });
+          }
+          sessionStorage.removeItem('sensors_heatmap_id');
+        }
+        if (url) {
+          this.requestType = 3
+        } else {
+          this.requestType = 1
+        }
+        let BASE_API = 'https://preapiconsole.71360.com/api/app/cdp-analysis/'
+        // process.env === 'development' ? BASE_API = 'http://192.168.26.106:8888/' : BASE_API = 'https://preapiconsole.71360.com/api/app/obor-nginx-php-ydyl/'
+
+        heatmap.getServerData.start({
+          url: {
+            ajax: BASE_API + 'heatMapPage/toggleRateGraph?heatMapId=' + id,
+            jsonp: BASE_API + 'heatMapPage/toggleRateGraph?heatMapId=' + id
+          },
+          success: suc,
+          error: err
+        });
+      } else {
+        // sd.log('缺少web_url');
+      }
+    },
+    setNoticeMap: function () { },
+    setHeatState: function (type, isFirst) {
+      const data = this.getQueryString('sa-request-id')
+      const url = window.location.href
       if (isFirst) {
         if (type === '1') {
           this.setClickMap(data, url)
@@ -737,13 +794,10 @@ export default {
         if (!data) {
           return false;
         }
-        if (!type) {
-          type = 1;
-        }
         let obj = {
           'sa-request-id': data,
-          'sa-request-type': type,
-          'sa-request-url': sessionStorage && sessionStorage.getItem ? sessionStorage.getItem('sensors_heatmap_url') || '' : ''
+          'sa-request-type': type || this.chartType
+          // 'sa-request-url': sessionStorage && sessionStorage.getItem ? sessionStorage.getItem('sensors_heatmap_url') || '' : ''
         };
         try {
           let windowNameParam = {};
@@ -754,15 +808,19 @@ export default {
             window.name = JSON.stringify(obj);
           }
         } catch (e) { }
-        if (this.requestType == 1) {
-          href.addQueryString(obj);
-          location.href = href.getUrl();
-        } else {
-          sessionStorage && sessionStorage.setItem && sessionStorage.setItem('sensors_heatmap_type', type);
-          location.reload();
-        }
+        href.addQueryString(obj);
+        location.href = href.getUrl();
       }
     },
+    refreshData() {
+      location.reload()
+    },
+    pickupPane() {
+      this.toolbarShow = false
+    },
+    expandPane() {
+      this.toolbarShow = true
+    }
   },
 }
 </script>
@@ -889,7 +947,7 @@ textarea[sa-click-area="6"] {
   height: 14px;
   line-height: 14px;
   margin: -7px 0 0 -28px;
-  width: 56px;
+  width: 66px;
   color: #fff;
   content: attr(data-click);
   font-size: 14px;
@@ -969,5 +1027,8 @@ textarea[sa-click-area="6"] {
   color: #eff2f7;
   margin: 0;
   clear: both;
+  &.toolbar-hidden {
+    display: none;
+  }
 }
 </style>

@@ -5317,7 +5317,7 @@
       // TODO 热力图修改为本地的地址了
       if (!sd.para.heatmap_url) {
         // sd.para.heatmap_url = getSafeHttpProtocol() + '//static.sensorsdata.cn/sdk/' + sd.lib_version + '/heatmap.min.js';
-        sd.para.heatmap_url = 'http://192.168.26.19:7777/heatmap.js';
+        sd.para.heatmap_url = 'http://127.0.0.1:5501/test/heatmap.full.js';
       }
     },
     getDomIndex: function(el) {
